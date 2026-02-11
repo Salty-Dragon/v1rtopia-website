@@ -97,6 +97,92 @@ All mock data can be found in `app/page.tsx` as constants:
 - `FEATURES` - Feature cards
 - `BLOG_POSTS` - Update posts
 
+## Configuration
+
+### Environment Variables
+
+The application supports configuration via environment variables. You can use a `.env` file for application-specific variables, but note that the `PORT` variable must be set in your shell environment.
+
+Create a `.env` file in the root directory based on `.env.example`:
+
+```bash
+# Copy the example file
+cp .env.example .env
+```
+
+Available environment variables:
+
+- **`PORT`** - The port the Next.js application will listen on (default: 3000)
+  - **Note:** This must be set as an environment variable, not in the `.env` file
+
+### Custom Port Configuration
+
+You can run the application on a custom port by setting the `PORT` environment variable in your shell:
+
+```bash
+# Inline (Unix-like systems)
+PORT=3001 npm run dev
+
+# Inline (Windows PowerShell)
+$env:PORT=3001; npm run dev
+
+# Inline (Windows CMD)
+set PORT=3001 && npm run dev
+```
+
+The application will be available at `http://localhost:3001` (or your configured port).
+
+## Deployment
+
+### nginx Reverse Proxy
+
+For production deployments with nginx as a reverse proxy, see the detailed configuration guide:
+
+📄 **[nginx Configuration Guide](docs/nginx.md)**
+
+The guide includes:
+- Complete nginx reverse proxy setup
+- SSL/HTTPS configuration with Let's Encrypt
+- WebSocket support for real-time features
+- Static asset caching
+- Load balancing for multiple instances
+- Rate limiting and security headers
+
+### Production Deployment Steps
+
+1. **Build the application:**
+   ```bash
+   npm run build
+   ```
+
+2. **Set up environment variables:**
+   ```bash
+   cp .env.example .env
+   # Edit .env with your production settings
+   ```
+
+3. **Start the production server:**
+   ```bash
+   npm start
+   ```
+
+4. **Configure nginx** (see [docs/nginx.md](docs/nginx.md))
+
+5. **Set up process manager (optional but recommended):**
+   ```bash
+   # Using PM2
+   npm install -g pm2
+   pm2 start npm --name "v1rtopia" -- start
+   pm2 startup
+   pm2 save
+   ```
+
+### Other Deployment Options
+
+- **Vercel**: This Next.js application can be deployed to Vercel with zero configuration
+- **Docker**: Create a Dockerfile for containerized deployments
+- **Cloud Platforms**: Deploy to AWS, Google Cloud, Azure, or other cloud providers
+
 ## License
 
 This project is licensed under the ISC License.
