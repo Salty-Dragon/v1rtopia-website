@@ -646,7 +646,7 @@ function LeaderboardSection() {
               <Loader2 className="w-8 h-8 text-green-400 animate-spin" />
             </div>
           ) : (
-            <AnimatePresence mode="wait">
+            <AnimatePresence>
               {leaderboardData.map((player, index) => (
                 <motion.div
                   key={`${activeTab}-${player.rank}`}
