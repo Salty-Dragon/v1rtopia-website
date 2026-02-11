@@ -20,7 +20,10 @@ import {
   Globe,
   MessageCircle,
   ExternalLink,
+  Loader2,
 } from "lucide-react";
+import { fetchServerStats, fetchLeaderboard, type ServerStats, type LeaderboardEntry } from "@/lib/api";
+import { formatNumber, formatPlaytime, formatWithCommas, getAvatarInitials } from "@/lib/formatters";
 
 // ========================================
 // CONSTANTS & MOCK DATA
@@ -224,6 +227,34 @@ function Navbar() {
 function HeroSection() {
   const [copied, setCopied] = useState(false);
   const [showToast, setShowToast] = useState(false);
+  const [playersOnline, setPlayersOnline] = useState(47);
+
+  useEffect(() => {
+    let isMounted = true;
+    
+    async function loadPlayerCount() {
+      try {
+        const response = await fetchServerStats();
+        if (!isMounted) return;
+        
+        if (response.data) {
+          setPlayersOnline(response.data.active_last_7_days);
+        }
+      } catch (err) {
+        // Keep default value on error
+      }
+    }
+
+    loadPlayerCount();
+    
+    // Refresh player count every 60 seconds
+    const interval = setInterval(loadPlayerCount, 60000);
+    
+    return () => {
+      isMounted = false;
+      clearInterval(interval);
+    };
+  }, []);
 
   const handleCopyIP = async () => {
     await navigator.clipboard.writeText("play.v1rtopia.net");
@@ -334,7 +365,7 @@ function HeroSection() {
                 </div>
                 <div className="flex items-center justify-between">
                   <span className="text-gray-400">Players</span>
-                  <span className="text-white font-medium">47 / 100</span>
+                  <span className="text-white font-medium">{playersOnline} / 100</span>
                 </div>
                 <div className="flex items-center justify-between">
                   <span className="text-gray-400">TPS</span>
@@ -358,6 +389,90 @@ function HeroSection() {
 
 // Stats Grid
 function StatsSection() {
+  const [stats, setStats] = useState(MOCK_STATS);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    let isMounted = true;
+    
+    async function loadStats() {
+      try {
+        setLoading(true);
+        const response = await fetchServerStats();
+        
+        if (!isMounted) return;
+        
+        if (response.error || !response.data) {
+          setError(response.error || 'Failed to load stats');
+          setStats(MOCK_STATS); // Fallback to mock data
+        } else {
+          const serverStats = response.data;
+          
+          // Map API data to stats format
+          const apiStats = [
+            { 
+              label: "Players Online", 
+              value: serverStats.active_last_7_days.toString(), 
+              icon: Users, 
+              color: "text-green-400" 
+            },
+            { 
+              label: "Total Players", 
+              value: formatWithCommas(serverStats.total_players), 
+              icon: TrendingUp, 
+              color: "text-blue-400" 
+            },
+            { 
+              label: "Blocks Mined", 
+              value: "8.4M", // Keep mock for now - not in API
+              icon: Pickaxe, 
+              color: "text-amber-400" 
+            },
+            { 
+              label: "Total Kills", 
+              value: formatNumber(serverStats.total_kills), 
+              icon: Skull, 
+              color: "text-red-400" 
+            },
+            { 
+              label: "Richest Player", 
+              value: "$4.2M", // Keep mock for now - not in API
+              icon: DollarSign, 
+              color: "text-yellow-400" 
+            },
+            { 
+              label: "Server Uptime", 
+              value: "99.8%", // Keep mock for now - not in API
+              icon: Clock, 
+              color: "text-cyan-400" 
+            },
+          ];
+          
+          setStats(apiStats);
+          setError(null);
+        }
+      } catch (err) {
+        if (!isMounted) return;
+        setError('Failed to load stats');
+        setStats(MOCK_STATS);
+      } finally {
+        if (isMounted) {
+          setLoading(false);
+        }
+      }
+    }
+
+    loadStats();
+    
+    // Refresh stats every 60 seconds
+    const interval = setInterval(loadStats, 60000);
+    
+    return () => {
+      isMounted = false;
+      clearInterval(interval);
+    };
+  }, []);
 
   return (
     <section id="stats" className="relative py-24 px-4 sm:px-6 lg:px-8">
@@ -372,7 +487,7 @@ function StatsSection() {
         </motion.h2>
 
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {MOCK_STATS.map((stat, index) => {
+          {stats.map((stat, index) => {
             const Icon = stat.icon;
             return (
               <motion.div
@@ -386,11 +501,15 @@ function StatsSection() {
               >
                 <div className="flex items-center justify-between mb-4">
                   <Icon className={cn("w-8 h-8", stat.color)} />
-                  <motion.div
-                    animate={{ rotate: 360 }}
-                    transition={{ duration: 20, repeat: Infinity, ease: "linear" }}
-                    className="w-12 h-12 rounded-full border-2 border-dashed border-green-500/20"
-                  />
+                  {loading && index === 0 ? (
+                    <Loader2 className="w-5 h-5 text-green-400 animate-spin" />
+                  ) : (
+                    <motion.div
+                      animate={{ rotate: 360 }}
+                      transition={{ duration: 20, repeat: Infinity, ease: "linear" }}
+                      className="w-12 h-12 rounded-full border-2 border-dashed border-green-500/20"
+                    />
+                  )}
                 </div>
                 <div className="text-3xl font-bold text-white mb-2">
                   {stat.value}
@@ -408,7 +527,85 @@ function StatsSection() {
 // Leaderboard Section
 function LeaderboardSection() {
   const [activeTab, setActiveTab] = useState(LEADERBOARD_TABS[0]);
-  const leaderboardData = MOCK_LEADERBOARDS[activeTab as keyof typeof MOCK_LEADERBOARDS];
+  const [leaderboardData, setLeaderboardData] = useState(
+    MOCK_LEADERBOARDS[activeTab as keyof typeof MOCK_LEADERBOARDS]
+  );
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    let isMounted = true;
+    
+    async function loadLeaderboard() {
+      try {
+        setLoading(true);
+        
+        let apiType: 'kills' | 'playtime' | null = null;
+        
+        // Map tab names to API endpoints
+        if (activeTab === 'Kills') {
+          apiType = 'kills';
+        } else if (activeTab === 'Playtime') {
+          apiType = 'playtime';
+        }
+        
+        // For tabs without API support, use mock data
+        if (!apiType) {
+          setLeaderboardData(MOCK_LEADERBOARDS[activeTab as keyof typeof MOCK_LEADERBOARDS]);
+          setLoading(false);
+          return;
+        }
+        
+        const response = await fetchLeaderboard(apiType, 5);
+        
+        if (!isMounted) return;
+        
+        if (response.error || !response.data) {
+          setError(response.error || 'Failed to load leaderboard');
+          setLeaderboardData(MOCK_LEADERBOARDS[activeTab as keyof typeof MOCK_LEADERBOARDS]);
+        } else {
+          // Transform API data to display format
+          const transformedData = response.data.data.map((entry: LeaderboardEntry) => {
+            let value = '';
+            
+            if (activeTab === 'Kills' && entry.kills !== undefined) {
+              value = formatWithCommas(entry.kills);
+            } else if (activeTab === 'Playtime' && entry.playtime_minutes !== undefined) {
+              value = formatPlaytime(entry.playtime_minutes);
+            }
+            
+            return {
+              rank: entry.rank,
+              username: entry.username,
+              value: value,
+              avatar: getAvatarInitials(entry.username),
+            };
+          });
+          
+          setLeaderboardData(transformedData);
+          setError(null);
+        }
+      } catch (err) {
+        if (!isMounted) return;
+        setError('Failed to load leaderboard');
+        setLeaderboardData(MOCK_LEADERBOARDS[activeTab as keyof typeof MOCK_LEADERBOARDS]);
+      } finally {
+        if (isMounted) {
+          setLoading(false);
+        }
+      }
+    }
+
+    loadLeaderboard();
+    
+    // Refresh leaderboard every 30 seconds
+    const interval = setInterval(loadLeaderboard, 30000);
+    
+    return () => {
+      isMounted = false;
+      clearInterval(interval);
+    };
+  }, [activeTab]);
 
   return (
     <section id="leaderboards" className="relative py-24 px-4 sm:px-6 lg:px-8">
@@ -444,50 +641,56 @@ function LeaderboardSection() {
 
         {/* Leaderboard List */}
         <motion.div className="glass border border-green-500/30 rounded-2xl p-6 space-y-3">
-          <AnimatePresence mode="wait">
-            {leaderboardData.map((player, index) => (
-              <motion.div
-                key={`${activeTab}-${player.rank}`}
-                initial={{ opacity: 0, x: -20 }}
-                animate={{ opacity: 1, x: 0 }}
-                exit={{ opacity: 0, x: 20 }}
-                transition={{ delay: index * 0.05 }}
-                whileHover={{ scale: 1.02, x: 5 }}
-                className={cn(
-                  "flex items-center gap-4 p-4 rounded-xl transition-all duration-300",
-                  player.rank <= 3
-                    ? "bg-gradient-to-r from-green-500/20 to-transparent border border-green-500/30 glow-green-sm"
-                    : "bg-white/5 hover:bg-white/10"
-                )}
-              >
-                {/* Rank Badge */}
-                <div
+          {loading ? (
+            <div className="flex items-center justify-center py-12">
+              <Loader2 className="w-8 h-8 text-green-400 animate-spin" />
+            </div>
+          ) : (
+            <AnimatePresence mode="wait">
+              {leaderboardData.map((player, index) => (
+                <motion.div
+                  key={`${activeTab}-${player.rank}`}
+                  initial={{ opacity: 0, x: -20 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  exit={{ opacity: 0, x: 20 }}
+                  transition={{ delay: index * 0.05 }}
+                  whileHover={{ scale: 1.02, x: 5 }}
                   className={cn(
-                    "w-10 h-10 rounded-lg flex items-center justify-center font-bold",
-                    player.rank === 1 && "bg-yellow-500 text-black",
-                    player.rank === 2 && "bg-gray-300 text-black",
-                    player.rank === 3 && "bg-amber-700 text-white",
-                    player.rank > 3 && "bg-gray-700 text-gray-300"
+                    "flex items-center gap-4 p-4 rounded-xl transition-all duration-300",
+                    player.rank <= 3
+                      ? "bg-gradient-to-r from-green-500/20 to-transparent border border-green-500/30 glow-green-sm"
+                      : "bg-white/5 hover:bg-white/10"
                   )}
                 >
-                  {player.rank}
-                </div>
+                  {/* Rank Badge */}
+                  <div
+                    className={cn(
+                      "w-10 h-10 rounded-lg flex items-center justify-center font-bold",
+                      player.rank === 1 && "bg-yellow-500 text-black",
+                      player.rank === 2 && "bg-gray-300 text-black",
+                      player.rank === 3 && "bg-amber-700 text-white",
+                      player.rank > 3 && "bg-gray-700 text-gray-300"
+                    )}
+                  >
+                    {player.rank}
+                  </div>
 
-                {/* Avatar */}
-                <div className="w-12 h-12 rounded-lg bg-gradient-to-br from-green-500 to-green-700 flex items-center justify-center text-white font-bold">
-                  {player.avatar}
-                </div>
+                  {/* Avatar */}
+                  <div className="w-12 h-12 rounded-lg bg-gradient-to-br from-green-500 to-green-700 flex items-center justify-center text-white font-bold">
+                    {player.avatar}
+                  </div>
 
-                {/* Username */}
-                <div className="flex-1">
-                  <div className="text-white font-medium">{player.username}</div>
-                </div>
+                  {/* Username */}
+                  <div className="flex-1">
+                    <div className="text-white font-medium">{player.username}</div>
+                  </div>
 
-                {/* Value */}
-                <div className="text-green-400 font-bold text-lg">{player.value}</div>
-              </motion.div>
-            ))}
-          </AnimatePresence>
+                  {/* Value */}
+                  <div className="text-green-400 font-bold text-lg">{player.value}</div>
+                </motion.div>
+              ))}
+            </AnimatePresence>
+          )}
         </motion.div>
       </div>
     </section>
