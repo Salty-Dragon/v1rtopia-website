@@ -115,6 +115,11 @@ Available environment variables:
 - **`PORT`** - The port the Next.js application will listen on (default: 3000)
   - **Note:** This must be set as an environment variable, not in the `.env` file
 
+- **`NEXT_PUBLIC_API_URL`** - Base URL for the v1rtopia API (default: `http://localhost:3002`)
+  - For local development: `http://localhost:3002`
+  - For production with nginx proxy on same domain: `https://virtopia.com`
+  - The application automatically appends `/api/v1/*` paths to this base URL
+
 ### Custom Port Configuration
 
 You can run the application on a custom port by setting the `PORT` environment variable in your shell:
