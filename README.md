@@ -127,7 +127,7 @@ You can run the application on a custom port by setting the `PORT` environment v
 echo "PORT=3001" > .env
 npm run dev
 
-# Or inline (Unix/macOS/Linux)
+# Or inline (Unix-like systems)
 PORT=3001 npm run dev
 
 # Or inline (Windows PowerShell)
