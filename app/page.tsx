@@ -430,7 +430,7 @@ function StatsSection() {
               color: "text-amber-400" 
             },
             { 
-              label: "Mob Kills", 
+              label: "Total Kills", 
               value: formatNumber(serverStats.total_kills), 
               icon: Skull, 
               color: "text-red-400" 

@@ -71,5 +71,8 @@ export function getAvatarInitials(username: string): string {
   if (cleanName.length >= 2) {
     return cleanName.substring(0, 2).toUpperCase();
   }
-  return cleanName.charAt(0).toUpperCase() + cleanName.charAt(0).toUpperCase();
+  if (cleanName.length === 1) {
+    return cleanName.charAt(0).toUpperCase() + 'X';
+  }
+  return 'XX';
 }
