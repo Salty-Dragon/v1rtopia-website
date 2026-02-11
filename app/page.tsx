@@ -156,7 +156,6 @@ function Toast({ message, onClose }: { message: string; onClose: () => void }) {
 // Navbar
 function Navbar() {
   const [scrolled, setScrolled] = useState(false);
-  const { scrollY } = useScroll();
   
   useEffect(() => {
     const handleScroll = () => setScrolled(window.scrollY > 50);
@@ -359,30 +358,6 @@ function HeroSection() {
 
 // Stats Grid
 function StatsSection() {
-  const [counts, setCounts] = useState(MOCK_STATS.map(() => 0));
-
-  useEffect(() => {
-    const timers = MOCK_STATS.map((stat, index) => {
-      const targetValue = parseInt(stat.value.replace(/[^0-9.]/g, ""));
-      let current = 0;
-      const increment = targetValue / 50;
-      
-      return setInterval(() => {
-        current += increment;
-        if (current >= targetValue) {
-          current = targetValue;
-          clearInterval(timers[index]);
-        }
-        setCounts((prev) => {
-          const newCounts = [...prev];
-          newCounts[index] = current;
-          return newCounts;
-        });
-      }, 30);
-    });
-
-    return () => timers.forEach(clearInterval);
-  }, []);
 
   return (
     <section id="stats" className="relative py-24 px-4 sm:px-6 lg:px-8">
@@ -780,7 +755,7 @@ function Footer() {
 
         <div className="border-t border-green-500/20 pt-8 flex flex-col sm:flex-row items-center justify-between gap-4">
           <p className="text-gray-500 text-sm">
-            © 2024 v1rtopia. All rights reserved.
+            © {new Date().getFullYear()} v1rtopia. All rights reserved.
           </p>
           <p className="text-gray-600 text-xs">
             Not affiliated with Mojang Studios or Microsoft
