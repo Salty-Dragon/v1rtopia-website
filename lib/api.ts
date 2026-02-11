@@ -57,20 +57,42 @@ export class ApiError extends Error {
 // FETCH WRAPPER FUNCTIONS
 // ========================================
 
+// Track if API is available to avoid repeated failed requests
+let apiAvailable: boolean | null = null;
+let lastHealthCheck = 0;
+const HEALTH_CHECK_INTERVAL = 60000; // Check every 60 seconds
+
 async function fetchWithRetry<T>(
   url: string,
-  retries = 2,
+  retries = 0,
   delay = 1000
 ): Promise<ApiResponse<T>> {
+  // Check API health periodically
+  const now = Date.now();
+  if (apiAvailable === null || now - lastHealthCheck > HEALTH_CHECK_INTERVAL) {
+    apiAvailable = await checkApiHealth();
+    lastHealthCheck = now;
+  }
+
+  // Skip request if API is known to be unavailable
+  if (!apiAvailable) {
+    return { error: 'API unavailable' };
+  }
   for (let i = 0; i <= retries; i++) {
     try {
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), 3000); // 3 second timeout
+      
       const response = await fetch(url, {
         method: 'GET',
         headers: {
           'Content-Type': 'application/json',
         },
         cache: 'no-store',
+        signal: controller.signal,
       });
+
+      clearTimeout(timeoutId);
 
       if (response.status === 429) {
         // Rate limited - wait and retry
@@ -89,6 +111,10 @@ async function fetchWithRetry<T>(
       return { data: jsonData as T, cached: jsonData.cached };
     } catch (error) {
       if (i === retries) {
+        // Mark API as unavailable on connection errors
+        if (error instanceof Error && (error.name === 'AbortError' || error.message.includes('fetch'))) {
+          apiAvailable = false;
+        }
         if (error instanceof ApiError) {
           return { error: error.message };
         }
@@ -131,10 +157,16 @@ export async function fetchLeaderboard(
  */
 export async function checkApiHealth(): Promise<boolean> {
   try {
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), 2000); // 2 second timeout
+    
     const response = await fetch(`${API_BASE_URL}/health`, {
       method: 'GET',
       cache: 'no-store',
+      signal: controller.signal,
     });
+    
+    clearTimeout(timeoutId);
     return response.ok;
   } catch {
     return false;
