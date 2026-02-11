@@ -101,7 +101,9 @@ All mock data can be found in `app/page.tsx` as constants:
 
 ### Environment Variables
 
-The application supports configuration via environment variables. Create a `.env` file in the root directory based on `.env.example`:
+The application supports configuration via environment variables. You can use a `.env` file for application-specific variables, but note that the `PORT` variable must be set in your shell environment.
+
+Create a `.env` file in the root directory based on `.env.example`:
 
 ```bash
 # Copy the example file
@@ -111,29 +113,20 @@ cp .env.example .env
 Available environment variables:
 
 - **`PORT`** - The port the Next.js application will listen on (default: 3000)
-
-Example `.env` file:
-
-```bash
-PORT=3001
-```
+  - **Note:** This must be set as an environment variable, not in the `.env` file
 
 ### Custom Port Configuration
 
-You can run the application on a custom port by setting the `PORT` environment variable:
+You can run the application on a custom port by setting the `PORT` environment variable in your shell:
 
 ```bash
-# Using .env file
-echo "PORT=3001" > .env
-npm run dev
-
-# Or inline (Unix-like systems)
+# Inline (Unix-like systems)
 PORT=3001 npm run dev
 
-# Or inline (Windows PowerShell)
+# Inline (Windows PowerShell)
 $env:PORT=3001; npm run dev
 
-# Or inline (Windows CMD)
+# Inline (Windows CMD)
 set PORT=3001 && npm run dev
 ```
 
