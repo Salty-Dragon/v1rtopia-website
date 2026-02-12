@@ -165,7 +165,7 @@ export async function checkApiHealth(): Promise<boolean> {
   const timeoutId = setTimeout(() => controller.abort(), 2000); // 2 second timeout
   
   try {
-    const response = await fetch(`${API_BASE_URL}/health`, {
+    const response = await fetch(`${API_BASE_URL}/api/v1/health`, {
       method: 'GET',
       cache: 'no-store',
       signal: controller.signal,
