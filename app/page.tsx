@@ -33,6 +33,7 @@ const NAV_LINKS = [
   { label: "Home", href: "#home" },
   { label: "Stats", href: "#stats" },
   { label: "Leaderboards", href: "#leaderboards" },
+  { label: "Shards Guide", href: "/shards-guide" },
   { label: "Blog", href: "#blog" },
   { label: "Map", href: "#map" },
   { label: "Join", href: "#join" },
