@@ -26,6 +26,7 @@ import {
   ExternalLink,
   MessageCircle,
   ArrowUp,
+  Box,
 } from "lucide-react";
 import Link from "next/link";
 
@@ -725,6 +726,10 @@ export default function ShardsGuidePage() {
               Complete player guide for the Shards SMP plugin. Learn about every shard,
               ability, the life &amp; trust systems, and all available commands.
             </p>
+            <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-black/40 border border-green-500/40 text-green-300 text-sm font-medium glow-green-sm" aria-label="Supported Minecraft version">
+              <Box className="w-3.5 h-3.5 text-green-400" />
+              Minecraft 1.21.1 (Java Edition)
+            </div>
           </motion.div>
         </div>
       </section>
@@ -789,6 +794,12 @@ export default function ShardsGuidePage() {
               </SectionHeading>
 
               <div className="glass border border-green-500/20 rounded-2xl p-6 space-y-6 text-gray-300 leading-relaxed">
+                <div className="flex items-center gap-3 p-4 rounded-xl bg-green-500/5 border border-green-500/20" role="note" aria-label="Server version requirement">
+                  <Box className="w-5 h-5 text-green-400 shrink-0" aria-hidden="true" />
+                  <p className="text-green-200 text-sm">
+                    <strong>Server Version:</strong> Minecraft 1.21.1 (Java Edition)
+                  </p>
+                </div>
                 <div className="flex items-start gap-3 p-4 rounded-xl bg-amber-500/5 border border-amber-500/20">
                   <Sparkles className="w-5 h-5 text-amber-400 shrink-0 mt-0.5" />
                   <p className="text-amber-200 text-sm">
