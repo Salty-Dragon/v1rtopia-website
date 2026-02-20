@@ -992,7 +992,7 @@ export default function ShardsGuidePage() {
                       <span className="text-white font-semibold">Starting Lives</span>
                     </div>
                     <p className="text-gray-400 text-sm">
-                      Every player begins with <strong className="text-white">6 lives</strong>.
+                      Every player begins with <strong className="text-white">5 lives</strong>.
                     </p>
                   </div>
 
