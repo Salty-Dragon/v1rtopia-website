@@ -506,18 +506,15 @@ function CopyButton({ text }: { text: string }) {
 }
 
 function SectionHeading({
-  id,
   icon: Icon,
   children,
 }: {
-  id: string;
   icon?: React.ElementType;
   children: React.ReactNode;
 }) {
   return (
     <h2
-      id={id}
-      className="text-3xl md:text-4xl font-bold text-white mb-8 flex items-center gap-3 scroll-mt-24"
+      className="text-3xl md:text-4xl font-bold text-white mb-8 flex items-center gap-3"
     >
       {Icon && (
         <span className="w-10 h-10 rounded-xl bg-green-500/10 border border-green-500/30 flex items-center justify-center shrink-0">
@@ -787,7 +784,7 @@ export default function ShardsGuidePage() {
 
           {/* ── Getting Started ── */}
             <section id="getting-started" className="scroll-mt-24">
-              <SectionHeading id="getting-started" icon={BookOpen}>
+              <SectionHeading icon={BookOpen}>
                 Getting Started
               </SectionHeading>
 
@@ -857,7 +854,7 @@ export default function ShardsGuidePage() {
 
             {/* ── Available Shards ── */}
             <section id="available-shards" className="scroll-mt-24">
-              <SectionHeading id="available-shards" icon={Sparkles}>
+              <SectionHeading icon={Sparkles}>
                 Available Shards
               </SectionHeading>
 
@@ -896,7 +893,7 @@ export default function ShardsGuidePage() {
 
             {/* ── Passive Abilities ── */}
             <section id="passive-abilities" className="scroll-mt-24">
-              <SectionHeading id="passive-abilities" icon={Shield}>
+              <SectionHeading icon={Shield}>
                 Passive Abilities
               </SectionHeading>
               <p className="text-gray-400 mb-8">
@@ -940,7 +937,7 @@ export default function ShardsGuidePage() {
 
             {/* ── Tier 1 Abilities ── */}
             <section id="tier-1-abilities" className="scroll-mt-24">
-              <SectionHeading id="tier-1-abilities" icon={Zap}>
+              <SectionHeading icon={Zap}>
                 Tier 1 Abilities
               </SectionHeading>
               <p className="text-gray-400 mb-4">
@@ -959,7 +956,7 @@ export default function ShardsGuidePage() {
 
             {/* ── Tier 2 Abilities ── */}
             <section id="tier-2-abilities" className="scroll-mt-24">
-              <SectionHeading id="tier-2-abilities" icon={Sparkles}>
+              <SectionHeading icon={Sparkles}>
                 Tier 2 Abilities
               </SectionHeading>
               <p className="text-gray-400 mb-4">
@@ -979,7 +976,7 @@ export default function ShardsGuidePage() {
 
             {/* ── Life System ── */}
             <section id="life-system" className="scroll-mt-24">
-              <SectionHeading id="life-system" icon={Heart}>
+              <SectionHeading icon={Heart}>
                 Life System
               </SectionHeading>
 
@@ -1060,7 +1057,7 @@ export default function ShardsGuidePage() {
 
             {/* ── Trust System ── */}
             <section id="trust-system" className="scroll-mt-24">
-              <SectionHeading id="trust-system" icon={Users}>
+              <SectionHeading icon={Users}>
                 Trust System
               </SectionHeading>
 
@@ -1134,7 +1131,7 @@ export default function ShardsGuidePage() {
 
             {/* ── Commands ── */}
             <section id="commands" className="scroll-mt-24">
-              <SectionHeading id="commands" icon={Terminal}>
+              <SectionHeading icon={Terminal}>
                 Commands
               </SectionHeading>
 
@@ -1185,7 +1182,7 @@ export default function ShardsGuidePage() {
 
             {/* ── Quick Reference ── */}
             <section id="quick-reference" className="scroll-mt-24">
-              <SectionHeading id="quick-reference" icon={ListOrdered}>
+              <SectionHeading icon={ListOrdered}>
                 Quick Reference
               </SectionHeading>
 
