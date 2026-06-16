@@ -78,8 +78,7 @@ const NAV_LINKS = [
   { label: "Home", href: "/" },
   { label: "Stats", href: "/#stats" },
   { label: "Leaderboards", href: "/#leaderboards" },
-  { label: "Shards Guide", href: "/shards-guide" },
-  { label: "CTF Guide", href: "/ctf-guide" },
+  { label: "Plugins", href: "/plugins" },
   { label: "Changelog", href: "/shards-changelog" },
   { label: "Blog", href: "/#blog" },
   { label: "Map", href: "/#map" },
@@ -375,7 +374,7 @@ function Navbar() {
                 href={link.href}
                 className={cn(
                   "transition-colors",
-                  link.href === "/shards-guide"
+                  link.href === "/plugins"
                     ? "text-green-400 font-medium"
                     : "text-gray-300 hover:text-green-400"
                 )}
@@ -433,7 +432,7 @@ function Navbar() {
                   onClick={() => setMobileOpen(false)}
                   className={cn(
                     "block px-4 py-2 rounded-lg transition-colors",
-                    link.href === "/shards-guide"
+                    link.href === "/plugins"
                       ? "text-green-400 bg-green-500/10"
                       : "text-gray-300 hover:text-green-400 hover:bg-white/5"
                   )}
