@@ -34,6 +34,7 @@ const NAV_LINKS = [
   { label: "Stats", href: "#stats" },
   { label: "Leaderboards", href: "#leaderboards" },
   { label: "Shards Guide", href: "/shards-guide" },
+  { label: "CTF Guide", href: "/ctf-guide" },
   { label: "Changelog", href: "/shards-changelog" },
   { label: "Blog", href: "#blog" },
   { label: "Map", href: "#map" },
