@@ -15,7 +15,6 @@ import {
   Wind,
   Mountain,
   Flame,
-  Snowflake,
   Eye,
   Leaf,
   Sparkles,
@@ -89,8 +88,8 @@ const TOC_ITEMS: TocItem[] = [
   { id: "getting-started", label: "Getting Started", level: 1 },
   { id: "available-shards", label: "Available Shards", level: 1 },
   { id: "passive-abilities", label: "Passive Abilities", level: 1 },
-  { id: "tier-1-abilities", label: "Tier 1 Abilities", level: 1 },
-  { id: "tier-2-abilities", label: "Tier 2 Abilities", level: 1 },
+  { id: "tier-1-abilities", label: "Ability 1", level: 1 },
+  { id: "tier-2-abilities", label: "Ability 2", level: 1 },
   { id: "life-system", label: "Life System", level: 1 },
   { id: "trust-system", label: "Trust System", level: 1 },
   { id: "commands", label: "Commands", level: 1 },
@@ -105,21 +104,22 @@ const SHARDS: ShardData[] = [
     color: "text-purple-400",
     borderColor: "border-purple-500/40",
     bgColor: "bg-purple-500/10",
-    description: "Stealth and detection specialist.",
-    passive: "Swift Sneak III — Move faster while sneaking (applied to leggings).",
+    description: "Detection and warden-style sonic power.",
+    passive:
+      "Resistance I + Night Vision — Permanent Resistance I and Night Vision while held. Right-click a held Sculk Shrieker to eat one (45s item cooldown, 15% chance of Strength for 15s).",
     tier1: {
-      name: "Sonic Pulse",
-      cooldown: "30s",
-      range: "10 blocks",
+      name: "Echolocate",
+      cooldown: "60s",
+      range: "30 blocks",
       description:
-        "Reveals all nearby enemies with the Glowing effect for 10 seconds. Perfect for detecting hidden enemies or finding players in dark areas.",
+        "Untrusted players within 30 blocks are marked with Glowing (visible through walls) and Darkness for 30 seconds. Anyone within 8 blocks is additionally stunned for 3 seconds.",
     },
     tier2: {
-      name: "Abyss Call",
-      cooldown: "50s",
-      range: "8 blocks",
+      name: "Sonic Shriek",
+      cooldown: "75s",
+      range: "20 blocks",
       description:
-        "Applies Darkness, Slowness III, and Mining Fatigue II to all enemies within 8 blocks. Disorient and disable multiple enemies in close quarters.",
+        "Fires a warden-style sonic beam dealing true damage, fuelled by your Sound Meter — up to 5 hearts at full charge, 3.5 at 75%+, 2.5 below. The meter fills from sounds you and nearby players make.",
     },
   },
   {
@@ -129,19 +129,20 @@ const SHARDS: ShardData[] = [
     color: "text-red-400",
     borderColor: "border-red-500/40",
     bgColor: "bg-red-500/10",
-    description: "Healing and survivability focus.",
-    passive: "+2 Hearts + Regeneration I — Gain 2 extra hearts (4 HP) and constant health regeneration.",
+    description: "Lifesteal and survivability.",
+    passive: "Regeneration I — Permanent Regeneration I while the shard is held.",
     tier1: {
-      name: "Life Surge",
-      cooldown: "40s",
+      name: "Health Drain",
+      cooldown: "120s",
+      range: "20 blocks",
       description:
-        "Instantly heals you to maximum health. Emergency healing in combat or after taking damage.",
+        "Drains health from untrusted players within 20 blocks for 10 seconds, and steals 2 hearts from your last-hit target — they drop to 8 hearts and you rise to 12 for the duration.",
     },
     tier2: {
-      name: "Resistance",
-      cooldown: "60s",
+      name: "Overheal",
+      cooldown: "180s",
       description:
-        "Grants yourself Resistance II and Fire Resistance for 15 seconds. Tank damage during combat or when entering dangerous situations.",
+        "Grants bonus max health for 15 seconds, scaled by time since last use: up to 20 hearts if 5+ minutes have passed, 14–16 hearts if used more recently. Refused (no cooldown burned) if used under 2 minutes ago.",
     },
   },
   {
@@ -151,20 +152,20 @@ const SHARDS: ShardData[] = [
     color: "text-cyan-400",
     borderColor: "border-cyan-500/40",
     bgColor: "bg-cyan-500/10",
-    description: "Mobility and aerial combat.",
-    passive: "Fall Damage Immunity — Take no damage from falling any distance.",
+    description: "Mobility and aerial control.",
+    passive:
+      "No Fall Damage + Faze — Take no fall damage, and a 10% chance to fully negate an incoming melee hit (faze straight through it).",
     tier1: {
-      name: "Skybound Leap",
-      cooldown: "15s",
+      name: "Sky Dash",
+      cooldown: "120s",
       description:
-        "Launches you forward at high speed with a powerful leap. Quick escape, chase down enemies, or traverse terrain rapidly.",
+        "A long forward dash on a cloud trail, plus a shorter bonus dash (second charge unlocks at +3 lives). Pure mobility — and you never take fall damage from the landing.",
     },
     tier2: {
-      name: "Wind Dominion",
-      cooldown: "60s",
-      range: "12 blocks",
+      name: "Skyfall",
+      cooldown: "~5 min charge",
       description:
-        "Grants yourself Speed III and Strength II for 10 seconds while pulling all enemies within 12 blocks toward you. Control enemy positioning and gain combat buffs.",
+        "Charges a Pressure Meter over roughly 5 minutes. At full charge you launch upward and slam down — untrusted players caught in the slam take 3.5–4.5 hearts.",
     },
   },
   {
@@ -174,19 +175,20 @@ const SHARDS: ShardData[] = [
     color: "text-amber-400",
     borderColor: "border-amber-500/40",
     bgColor: "bg-amber-500/10",
-    description: "Defensive and grounded abilities.",
-    passive: "No passive — Earth shard has no passive ability.",
+    description: "Underground control and depth-scaled damage.",
+    passive:
+      "Earthly Grasp — Your melee damage scales with how deep you are: +5% below Y 60, +7% below Y 0, +10% below Y −50.",
     tier1: {
-      name: "Earth Ability",
-      cooldown: "Server-configured",
+      name: "Driller",
+      cooldown: "120s",
       description:
-        "Earth shard Tier 1 ability details are server-configured. Check with admins for current values.",
+        "Burrow underground for 10 seconds with Speed, carving a self-restoring tunnel. Passing beneath an untrusted player roots and buries them for 8 seconds — a full stun where they can only eat golden apples.",
     },
     tier2: {
-      name: "Earth Ability",
-      cooldown: "Server-configured",
+      name: "Boulder Throw",
+      cooldown: "180s",
       description:
-        "Earth shard Tier 2 ability details are server-configured. Check with admins for current values.",
+        "Summon 3 boulders that orbit you, partially shielding you (5% chance to absorb a hit). Each cast hurls one along your aim for 2 hearts of true damage; the cooldown starts only once all three are thrown.",
     },
   },
   {
@@ -196,69 +198,45 @@ const SHARDS: ShardData[] = [
     color: "text-yellow-400",
     borderColor: "border-yellow-500/40",
     bgColor: "bg-yellow-500/10",
-    description: "Speed and electrical attacks.",
-    passive: "Speed I + Haste I — Move faster and mine/attack faster.",
+    description: "Speed and storm strikes.",
+    passive: "Speed I — Permanent Speed I while the shard is held.",
     tier1: {
-      name: "Shock Bolt",
-      cooldown: "20s",
-      range: "8 blocks",
+      name: "Dash",
+      cooldown: "100s / charge",
+      range: "15–20 blocks",
       description:
-        "Strikes all enemies within 8 blocks with lightning, dealing 6 damage and applying Weakness. Powerful offensive ability that also disables enemies temporarily.",
+        "Dash forward 15–20 blocks on a lightning trail (1 charge at +2 lives, 2 at +3). Untrusted players hit in the path take 2.5 hearts and a 10-second ability lockout.",
     },
     tier2: {
       name: "Thunderstorm",
-      cooldown: "60s",
-      range: "12 blocks",
+      cooldown: "180s",
+      range: "30 blocks",
       description:
-        "Unleashes 5 lightning strikes over time in a 12-block radius, each dealing 8 damage with 40% hit chance. Area denial and massive AoE damage.",
+        "Summon a storm for 10 seconds: lightning strikes random untrusted players within 30 blocks 3 times for 1–2.5 hearts each, and you gain Speed II.",
     },
   },
   {
-    id: "hell",
-    name: "Hell",
+    id: "scorch",
+    name: "Scorch",
     icon: Flame,
     color: "text-orange-400",
     borderColor: "border-orange-500/40",
     bgColor: "bg-orange-500/10",
-    description: "Fire damage and summoning.",
-    passive: "Fire Resistance — Immunity to fire and lava damage.",
+    description: "Fire control and burning rage (reworked Hell shard).",
+    passive:
+      "Fire Resistance + On-Fire Damage — Permanent Fire Resistance, plus +20% outgoing damage while you are on fire.",
     tier1: {
-      name: "Cursed Horde",
-      cooldown: "50s",
-      range: "10 blocks",
+      name: "Fire Wave",
+      cooldown: "120s",
+      range: "6 blocks",
       description:
-        "Summons 3 skeletons to fight for you (30 seconds) and weakens nearby enemies (Weakness I + Slowness II for 10 seconds). Summon allies in combat and debilitate enemies.",
+        "Erupt a wave of fire around you (radius 6): everyone caught is ignited — including you, since you're fire-immune — and untrusted players are knocked back. Staying lit powers your damage passive.",
     },
     tier2: {
-      name: "Infernal Ring",
-      cooldown: "60s",
-      range: "5 blocks",
+      name: "Black Flame",
+      cooldown: "180s",
       description:
-        "Creates a 5-block radius ring of fire that knocks back enemies (force 2.0), sets them on fire (5 seconds), and deals additional damage over time (0.4 HP/tick). Create space and deal sustained fire damage.",
-    },
-  },
-  {
-    id: "arctic",
-    name: "Arctic",
-    icon: Snowflake,
-    color: "text-blue-400",
-    borderColor: "border-blue-500/40",
-    bgColor: "bg-blue-500/10",
-    description: "Ice control and crowd control.",
-    passive: "Speed on Ice — Gain speed boost when standing on ice or packed ice.",
-    tier1: {
-      name: "Frostbite",
-      cooldown: "30s",
-      range: "8 blocks",
-      description:
-        "Deals 8 damage to all enemies within 8 blocks and applies slowness (Slowness I + Weakness I) and freezing for 9 seconds. Crowd control tool for group combat.",
-    },
-    tier2: {
-      name: "Ice Domain",
-      cooldown: "30s",
-      range: "8 blocks",
-      description:
-        "Converts all water to ice within an 8-block sphere for 10 seconds, creating an ice arena. Control the battlefield and create icy terrain.",
+        "For 25 seconds your fire turns black and cannot be extinguished by water, rain, or other players. A Rage Meter fills as you land melee hits (and a little when you take them), scaling your outgoing damage up to +50% at full rage.",
     },
   },
   {
@@ -268,20 +246,21 @@ const SHARDS: ShardData[] = [
     color: "text-violet-400",
     borderColor: "border-violet-500/40",
     bgColor: "bg-violet-500/10",
-    description: "Stealth and teleportation.",
-    passive: "Strength I — Deal increased melee damage.",
+    description: "Assassination and area denial.",
+    passive: "Strength I — Permanent Strength I while the shard is held.",
     tier1: {
-      name: "Phase Step",
-      cooldown: "20s",
+      name: "Shadowstep",
+      cooldown: "120s",
+      range: "25 blocks",
       description:
-        "Teleports you to the last enemy you hit in combat. Must have recently damaged an enemy. Chase fleeing enemies or close distance in combat.",
+        "Teleport behind your last-hit untrusted player (within 25 blocks, always to safe ground) and blind them for 8 seconds. Refused with no cooldown if there's no valid target.",
     },
     tier2: {
-      name: "Umbral Veil",
-      cooldown: "30s",
-      range: "10 blocks",
+      name: "Shadow Domain",
+      cooldown: "180s",
+      range: "25-block dome",
       description:
-        "Grants yourself Invisibility for 10 seconds and applies Darkness + Blindness to enemies within 10 blocks. Stealth engagement or escape while blinding enemies.",
+        "Raise a 25-block dome of dark blocks for 15 seconds. Untrusted players inside are blinded; you gain Strength II, Haste II, and a purple glow.",
     },
   },
   {
@@ -291,38 +270,42 @@ const SHARDS: ShardData[] = [
     color: "text-green-400",
     borderColor: "border-green-500/40",
     bgColor: "bg-green-500/10",
-    description: "Healing and area control.",
-    passive: "Regeneration on Plants — Heal when standing on grass or plant blocks.",
+    description: "Poison, snares, and zoning.",
+    passive: "Poison Touch — 10% chance to poison an untrusted player on each melee hit.",
     tier1: {
-      name: "Vine Snare",
-      cooldown: "30s",
-      range: "8 blocks",
+      name: "Vine Grapple",
+      cooldown: "120s",
       description:
-        "Roots enemies in place with extreme slowness (Slowness XI + Jump Boost -5) and poisons them (Poison II) for 10 seconds. Lock down enemies completely, preventing escape.",
+        "Fire a ray-traced vine. Hit an untrusted player to pull, poison, and stun them; hit a wall or ceiling to swing or reel yourself toward it for traversal.",
     },
     tier2: {
-      name: "Verdant Domain",
-      cooldown: "40s",
-      range: "10 blocks",
+      name: "Grove Prison",
+      cooldown: "180s",
+      range: "~20-block ring",
       description:
-        "Creates a 10-block healing zone for 15 seconds that grants you Regeneration III, heals trusted allies (+0.5 HP/tick), and pulls non-trusted enemies inward. Control an area with healing and crowd control.",
+        "Summon a ~20-block ring of leaf walls for 20 seconds. Untrusted players inside cannot throw wind charges, and touching the walls inflicts Poison II.",
     },
   },
 ];
 
 const PLAYER_COMMANDS: CommandData[] = [
-  { command: "/ability1", aliases: "/a1, /ab1", description: "Use your shard's Tier 1 ability." },
-  { command: "/ability2", aliases: "/a2, /ab2", description: "Use your shard's Tier 2 ability (requires upgraded shard)." },
-  { command: "/shard trust <player>", aliases: "/shardtrust trust", description: "Add a player to your trust list." },
-  { command: "/shard untrust <player>", aliases: "/shardtrust untrust", description: "Remove a player from your trust list." },
-  { command: "/shard list", aliases: "/shardtrust list", description: "View your trusted players (● online, ○ offline)." },
+  { command: "/ability1", aliases: "/a1", description: "Use your shard's Ability 1 (unlocks at +2 lives)." },
+  { command: "/ability2", aliases: "/a2", description: "Use your shard's Ability 2 (unlocks at +3 lives)." },
+  { command: "/trust <player>", description: "Protect a player from your abilities." },
+  { command: "/untrust <player>", description: "Remove a player from your trust list." },
+  { command: "/trustlist", description: "View who you trust (and who trusts you)." },
+  { command: "/withdraw <amount>", description: "Convert your own lives into Extra Life items (1:1)." },
+  { command: "/shard <name>", description: "Give yourself the named shard (if enabled by admins)." },
 ];
 
 const ADMIN_COMMANDS: CommandData[] = [
-  { command: "/giveshard <player> <shard>", description: "Give a shard item to a player.", permission: "Configurable (default: OP)" },
-  { command: "/shard_energy_give <amount> <player>", description: "Give lives (energy) to a player.", permission: "Configurable (default: OP)" },
-  { command: "/kit", description: "Access kits.", permission: "Configurable (default: OP)" },
-  { command: "/shards_clear_all", description: "Remove shards from all players.", permission: "Configurable (default: OP)" },
+  { command: "/shard <name> [player]", description: "Give a shard to a player.", permission: "Configurable (default: OP)" },
+  { command: "/livesset <player> <value>", description: "Set a player's lives (−3 to +3, clamped and audited).", permission: "Configurable (default: OP)" },
+  { command: "/shard_type_clear <name>", description: "Remove a shard type from all players (online & offline).", permission: "Configurable (default: OP)" },
+  { command: "/shard_clear_player <player>", description: "Remove any shard from a single player.", permission: "Configurable (default: OP)" },
+  { command: "/shards reload", description: "Reload config, messages, and shard kits.", permission: "OP" },
+  { command: "/shards info [player]", description: "Debug: shard, lives, cooldowns, meters, trust counts.", permission: "OP" },
+  { command: "/shards cooldown clear <player> [ability]", description: "Clear a player's ability cooldowns (testing aid).", permission: "OP" },
 ];
 
 // ========================================
@@ -729,7 +712,7 @@ export default function ShardsGuidePage() {
             </p>
             <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-black/40 border border-green-500/40 text-green-300 text-sm font-medium glow-green-sm" aria-label="Supported Minecraft version">
               <Box className="w-3.5 h-3.5 text-green-400" />
-              Minecraft 1.21.1 (Java Edition)
+              Minecraft 1.21.11 (Java Edition)
             </div>
           </motion.div>
         </div>
@@ -798,7 +781,7 @@ export default function ShardsGuidePage() {
                 <div className="flex items-center gap-3 p-4 rounded-xl bg-green-500/5 border border-green-500/20" role="note" aria-label="Server version requirement">
                   <Box className="w-5 h-5 text-green-400 shrink-0" aria-hidden="true" />
                   <p className="text-green-200 text-sm">
-                    <strong>Server Version:</strong> Minecraft 1.21.1 (Java Edition)
+                    <strong>Server Version:</strong> Minecraft 1.21.11 (Java Edition)
                   </p>
                 </div>
                 <div className="flex items-start gap-3 p-4 rounded-xl bg-amber-500/5 border border-amber-500/20">
@@ -817,28 +800,29 @@ export default function ShardsGuidePage() {
                   <ul className="mt-3 space-y-2 text-gray-400 text-sm">
                     <li className="flex items-center gap-2">
                       <Shield className="w-4 h-4 text-green-400 shrink-0" />
-                      <span><strong className="text-white">Passive Ability</strong> — Always-active effect when equipped</span>
+                      <span><strong className="text-white">Passive Ability</strong> — Always-active effect; unlocks at <strong className="text-white">+1 life</strong></span>
                     </li>
                     <li className="flex items-center gap-2">
                       <Zap className="w-4 h-4 text-yellow-400 shrink-0" />
-                      <span><strong className="text-white">Tier 1 Ability</strong> — Activated with <code className="text-green-400 font-mono bg-green-500/10 px-1 rounded">/ability1</code> — available immediately</span>
+                      <span><strong className="text-white">Ability 1</strong> — Activated with <code className="text-green-400 font-mono bg-green-500/10 px-1 rounded">/ability1</code>; unlocks at <strong className="text-white">+2 lives</strong></span>
                     </li>
                     <li className="flex items-center gap-2">
                       <Sparkles className="w-4 h-4 text-purple-400 shrink-0" />
-                      <span><strong className="text-white">Tier 2 Ability</strong> — Activated with <code className="text-green-400 font-mono bg-green-500/10 px-1 rounded">/ability2</code> — unlocked after upgrading</span>
+                      <span><strong className="text-white">Ability 2</strong> — Activated with <code className="text-green-400 font-mono bg-green-500/10 px-1 rounded">/ability2</code>; unlocks at <strong className="text-white">+3 lives</strong></span>
                     </li>
                   </ul>
                 </div>
 
                 <div>
-                  <h3 className="text-white font-semibold text-lg mb-3">Shard Tiers</h3>
+                  <h3 className="text-white font-semibold text-lg mb-3">Unlocking Your Powers</h3>
                   <p className="text-gray-400 text-sm mb-3">
-                    All shards start at <strong className="text-white">Tier 1</strong>. To unlock Tier 2 abilities:
+                    Your shard's powers are gated by your <strong className="text-white">lives</strong> (see the Life System below).
+                    Lives range from −3 to +3, and each tier above zero unlocks more of your kit:
                   </p>
                   <ol className="list-decimal list-inside space-y-2 text-gray-400 text-sm">
-                    <li>Obtain an <strong className="text-white">upgrade shard</strong> item (from admins or gameplay).</li>
-                    <li>Use it on your equipped shard to upgrade it to Tier 2.</li>
-                    <li>Once upgraded, you gain access to the more powerful <code className="text-green-400 font-mono bg-green-500/10 px-1 rounded">/ability2</code> command.</li>
+                    <li>At <strong className="text-white">+1 life</strong> your <strong className="text-white">passive</strong> turns on.</li>
+                    <li>At <strong className="text-white">+2 lives</strong> you unlock <code className="text-green-400 font-mono bg-green-500/10 px-1 rounded">/ability1</code>.</li>
+                    <li>At <strong className="text-white">+3 lives</strong> you unlock <code className="text-green-400 font-mono bg-green-500/10 px-1 rounded">/ability2</code>.</li>
                   </ol>
                 </div>
 
@@ -846,11 +830,11 @@ export default function ShardsGuidePage() {
                   <h3 className="text-white font-semibold text-lg mb-3">How to Use Shards</h3>
                   <ol className="space-y-3 text-gray-400 text-sm">
                     {[
-                      { step: "1", text: "Equip a Shard — Right-click a shard item to equip it (starts at Tier 1)." },
-                      { step: "2", text: "Use Tier 1 Ability — Type /ability1 or /a1 in chat." },
-                      { step: "3", text: "Upgrade to Tier 2 — Use an upgrade shard item to unlock Tier 2 abilities." },
-                      { step: "4", text: "Use Tier 2 Ability — Type /ability2 or /a2 (only works after upgrade)." },
-                      { step: "5", text: "Check Cooldowns — Try using an ability again; you'll be notified of remaining cooldown time." },
+                      { step: "1", text: "Get a Shard — Hold a shard item; you can carry one at a time, and its powers work from either hand." },
+                      { step: "2", text: "Climb your lives — Reach +1 for your passive, +2 for Ability 1, +3 for Ability 2 (kill players, or use Extra Life items)." },
+                      { step: "3", text: "Use Ability 1 — Type /ability1 or /a1 in chat once you're at +2 lives." },
+                      { step: "4", text: "Use Ability 2 — Type /ability2 or /a2 once you're at +3 lives." },
+                      { step: "5", text: "Check Cooldowns — Your action bar shows cooldowns, charges, and meters; reusing an ability tells you the time remaining." },
                     ].map(({ step, text }) => (
                       <li key={step} className="flex items-start gap-3">
                         <span className="w-6 h-6 rounded-full bg-green-500/20 border border-green-500/40 text-green-400 text-xs font-bold flex items-center justify-center shrink-0">
@@ -872,8 +856,9 @@ export default function ShardsGuidePage() {
 
               <div className="space-y-6">
                 <p className="text-gray-400">
-                  The server features <strong className="text-white">9 active shards</strong>. All
-                  shards start at Tier 1 and can be upgraded to Tier 2 using an upgrade shard item.
+                  The server features <strong className="text-white">8 playable shards</strong>. Each one
+                  has a passive plus two activated abilities that unlock as you climb your lives
+                  (passive at +1, Ability 1 at +2, Ability 2 at +3).
                 </p>
 
                 <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-4">
@@ -882,23 +867,13 @@ export default function ShardsGuidePage() {
                   ))}
                 </div>
 
-                {/* Legacy shards note */}
+                {/* More shards note */}
                 <div className="glass border border-white/10 rounded-2xl p-5 space-y-3">
-                  <h3 className="text-white font-semibold">Legacy Shards (Disabled by Default)</h3>
+                  <h3 className="text-white font-semibold">More Shards Coming</h3>
                   <p className="text-gray-400 text-sm">
-                    The following shards exist but are <strong className="text-white">disabled by default</strong> and
-                    may be enabled by server admins:
+                    Additional shards are in development and will appear here as they're released.
+                    Keep an eye on the <a href="/shards-changelog" className="text-green-400 hover:text-green-300 underline">changelog</a> and Discord for new kits and balance updates.
                   </p>
-                  <div className="flex flex-wrap gap-2">
-                    {["Celestial", "Void", "Time", "Chaos"].map((name) => (
-                      <span
-                        key={name}
-                        className="px-3 py-1 rounded-lg bg-white/5 border border-white/10 text-gray-400 text-sm font-mono"
-                      >
-                        {name}
-                      </span>
-                    ))}
-                  </div>
                 </div>
               </div>
             </section>
@@ -909,8 +884,9 @@ export default function ShardsGuidePage() {
                 Passive Abilities
               </SectionHeading>
               <p className="text-gray-400 mb-8">
-                These effects are <strong className="text-white">always active</strong> when you have
-                a shard equipped. Passives do not need to be activated and cannot be toggled off.
+                Each shard's passive unlocks at <strong className="text-white">+1 life</strong> and is then{" "}
+                <strong className="text-white">always active</strong> while the shard is held — no activation,
+                and it can't be toggled off.
               </p>
               <div className="glass border border-green-500/20 rounded-2xl overflow-x-auto">
                 <table className="w-full">
@@ -947,17 +923,16 @@ export default function ShardsGuidePage() {
               </div>
             </section>
 
-            {/* ── Tier 1 Abilities ── */}
+            {/* ── Ability 1 ── */}
             <section id="tier-1-abilities" className="scroll-mt-24">
               <SectionHeading icon={Zap}>
-                Tier 1 Abilities
+                Ability 1
               </SectionHeading>
               <p className="text-gray-400 mb-4">
                 Activated with{" "}
                 <code className="text-green-400 font-mono text-sm bg-green-500/10 px-1.5 py-0.5 rounded">/ability1</code>{" "}
-                (aliases: <code className="text-gray-400 font-mono text-sm">/a1</code>,{" "}
-                <code className="text-gray-400 font-mono text-sm">/ab1</code>) — available on{" "}
-                <strong className="text-white">all shards immediately</strong>.
+                (alias <code className="text-gray-400 font-mono text-sm">/a1</code>) —{" "}
+                <strong className="text-white">unlocks at +2 lives</strong>.
               </p>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 {SHARDS.map((shard) => (
@@ -966,18 +941,16 @@ export default function ShardsGuidePage() {
               </div>
             </section>
 
-            {/* ── Tier 2 Abilities ── */}
+            {/* ── Ability 2 ── */}
             <section id="tier-2-abilities" className="scroll-mt-24">
               <SectionHeading icon={Sparkles}>
-                Tier 2 Abilities
+                Ability 2
               </SectionHeading>
               <p className="text-gray-400 mb-4">
                 Activated with{" "}
                 <code className="text-green-400 font-mono text-sm bg-green-500/10 px-1.5 py-0.5 rounded">/ability2</code>{" "}
-                (aliases: <code className="text-gray-400 font-mono text-sm">/a2</code>,{" "}
-                <code className="text-gray-400 font-mono text-sm">/ab2</code>) —{" "}
-                <strong className="text-white">only available after upgrading</strong> your shard with
-                an upgrade shard item.
+                (alias <code className="text-gray-400 font-mono text-sm">/a2</code>) — your most powerful ability,{" "}
+                <strong className="text-white">unlocks at +3 lives</strong>.
               </p>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 {SHARDS.map((shard) => (
@@ -994,7 +967,9 @@ export default function ShardsGuidePage() {
 
               <div className="glass border border-green-500/20 rounded-2xl p-6 space-y-6 text-gray-300 leading-relaxed">
                 <p>
-                  The Life System adds strategic depth and consequences to PvP combat.
+                  Lives are the heart of Shards. They range from <strong className="text-white">−3 to +3</strong>,
+                  everyone starts at <strong className="text-white">0</strong>, and they both unlock your shard's
+                  powers <em>and</em> debuff you when they go negative. Lives persist across deaths, relogs, and restarts.
                 </p>
 
                 <div className="grid sm:grid-cols-3 gap-4">
@@ -1004,7 +979,8 @@ export default function ShardsGuidePage() {
                       <span className="text-white font-semibold">Starting Lives</span>
                     </div>
                     <p className="text-gray-400 text-sm">
-                      Every player begins with <strong className="text-white">5 lives</strong>.
+                      Everyone begins at <strong className="text-white">0</strong>, on a scale of
+                      <strong className="text-white"> −3 to +3</strong>.
                     </p>
                   </div>
 
@@ -1014,7 +990,8 @@ export default function ShardsGuidePage() {
                       <span className="text-white font-semibold">Gain a Life</span>
                     </div>
                     <p className="text-gray-400 text-sm">
-                      Kill another player to earn <strong className="text-white">+1 life</strong>.
+                      Kill a player and, if you're below +3, you take <strong className="text-white">+1 life</strong>.
+                      Extra Life items also grant +1.
                     </p>
                   </div>
 
@@ -1024,45 +1001,56 @@ export default function ShardsGuidePage() {
                       <span className="text-white font-semibold">Lose a Life</span>
                     </div>
                     <p className="text-gray-400 text-sm">
-                      Die to another player and lose <strong className="text-white">−1 life</strong>.
-                      Lives persist across restarts.
+                      Any death — PvP <em>or</em> environment/mob — costs
+                      <strong className="text-white"> −1 life</strong> (floored at −3).
                     </p>
                   </div>
                 </div>
 
                 <div>
-                  <h3 className="text-white font-semibold text-lg mb-3">Low Life Penalty</h3>
+                  <h3 className="text-white font-semibold text-lg mb-3">Lives Ladder</h3>
                   <p className="text-gray-400 text-sm mb-4">
-                    When you drop <strong className="text-white">below 3 lives</strong>, you suffer
-                    the following penalties:
+                    Every life threshold is re-checked on each change and on respawn. Going up unlocks your kit;
+                    going below zero stacks debuffs.
                   </p>
-                  <div className="space-y-3">
+                  <div className="space-y-2">
                     {[
-                      {
-                        label: "Ability Nerf",
-                        desc: "All ability effects are reduced to 50% effectiveness — damage, healing, durations, and utility are all halved.",
-                        color: "text-red-400",
-                      },
-                      {
-                        label: "Weakness Effect",
-                        desc: "A permanent Weakness effect is applied to you.",
-                        color: "text-orange-400",
-                      },
-                      {
-                        label: "Cooldowns Unchanged",
-                        desc: "Ability cooldowns remain the same — only the effects are reduced.",
-                        color: "text-gray-400",
-                      },
-                    ].map(({ label, desc, color }) => (
+                      { lives: "+3", effect: "Ability 2 unlocked (plus everything below)", color: "text-green-400" },
+                      { lives: "+2", effect: "Ability 1 unlocked", color: "text-green-400" },
+                      { lives: "+1", effect: "Passive unlocked", color: "text-green-400" },
+                      { lives: "0", effect: "Baseline — nothing unlocked, no debuffs", color: "text-gray-400" },
+                      { lives: "−1", effect: "Grace step — still no debuffs", color: "text-gray-400" },
+                      { lives: "−2", effect: "Slowness I (while at this level)", color: "text-orange-400" },
+                      { lives: "−3", effect: "Slowness I + Weakness I (debuffs stack downward)", color: "text-red-400" },
+                    ].map(({ lives, effect, color }) => (
                       <div
-                        key={label}
+                        key={lives}
                         className="flex items-start gap-3 p-3 rounded-xl bg-white/5 border border-white/5"
                       >
-                        <span className={cn("font-semibold text-sm w-40 shrink-0", color)}>{label}</span>
+                        <code className={cn("font-mono font-bold text-sm w-12 shrink-0 text-center", color)}>{lives}</code>
+                        <span className="text-gray-400 text-sm">{effect}</span>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+
+                <div>
+                  <h3 className="text-white font-semibold text-lg mb-3">Trading Lives</h3>
+                  <div className="space-y-2">
+                    {[
+                      { label: "Extra Life", desc: "A tradeable item that grants +1 life when consumed (capped at +3). When a +3 player is killed by another +3 player, they drop one at the death spot — the only way lives leave your account in combat.", color: "text-green-400" },
+                      { label: "/withdraw <n>", desc: "Convert your own lives into Extra Life items 1:1 (down to 0 by default). A full inventory blocks the whole withdraw.", color: "text-blue-400" },
+                      { label: "Repair Kit", desc: "Craftable and usable only while you're at 0 lives or below — grants +1 to help you climb back out of the debuff zone.", color: "text-amber-400" },
+                    ].map(({ label, desc, color }) => (
+                      <div key={label} className="flex items-start gap-3 p-3 rounded-xl bg-white/5 border border-white/5">
+                        <span className={cn("font-semibold text-sm w-32 shrink-0", color)}>{label}</span>
                         <span className="text-gray-400 text-sm">{desc}</span>
                       </div>
                     ))}
                   </div>
+                  <p className="text-gray-500 text-xs mt-3">
+                    Kills between trusted players are inert by default — no life is lost, gained, or dropped — so you can't farm friends.
+                  </p>
                 </div>
               </div>
             </section>
@@ -1075,11 +1063,14 @@ export default function ShardsGuidePage() {
 
               <div className="glass border border-green-500/20 rounded-2xl p-6 space-y-6 text-gray-300 leading-relaxed">
                 <p>
-                  The Trust System allows you to protect friendly players from your abilities. Use{" "}
+                  The Trust System lets you protect friendly players from <strong className="text-white">your</strong>{" "}
+                  abilities. Use{" "}
                   <code className="text-green-400 font-mono text-sm bg-green-500/10 px-1.5 py-0.5 rounded">
-                    /shard trust &lt;player&gt;
+                    /trust &lt;player&gt;
                   </code>{" "}
-                  to add someone to your trust list.
+                  to add someone to your trust list. Trust is <strong className="text-white">directional</strong>:
+                  trusting someone shields them from your abilities, but does <em>not</em> shield you from theirs
+                  unless they trust you back.
                 </p>
 
                 <div>
@@ -1108,9 +1099,9 @@ export default function ShardsGuidePage() {
                   <h3 className="text-white font-semibold text-lg mb-3">Trust Commands</h3>
                   <div className="space-y-2">
                     {[
-                      { cmd: "/shard trust <player>", desc: "Add a player to your trust list." },
-                      { cmd: "/shard untrust <player>", desc: "Remove a player from your trust list." },
-                      { cmd: "/shard list", desc: "View your trusted players (● online, ○ offline)." },
+                      { cmd: "/trust <player>", desc: "Add a player to your trust list (offline players allowed)." },
+                      { cmd: "/untrust <player>", desc: "Remove a player from your trust list." },
+                      { cmd: "/trustlist", desc: "View who you trust — and who trusts you." },
                     ].map(({ cmd, desc }) => (
                       <div
                         key={cmd}
@@ -1125,17 +1116,17 @@ export default function ShardsGuidePage() {
                     ))}
                   </div>
                   <p className="text-gray-500 text-xs mt-3">
-                    Alias: <code className="font-mono">/shardtrust</code> works the same as <code className="font-mono">/shard</code>.
+                    Only abilities are gated by trust — ordinary sword and bow damage between trusted players still lands.
                   </p>
                 </div>
 
                 <div className="p-4 rounded-xl bg-blue-500/5 border border-blue-500/20">
                   <h4 className="text-blue-300 font-semibold text-sm mb-2">Strategic Use</h4>
                   <ul className="space-y-1 text-blue-200/70 text-sm list-disc list-inside">
-                    <li>Trust your team members to avoid friendly fire.</li>
-                    <li>Coordinate group fights without hurting allies.</li>
-                    <li>Support allies with beneficial abilities like Nature's Verdant Domain.</li>
-                    <li>Trust is personal and one-directional — manage it carefully.</li>
+                    <li>Trust your team so your AoE abilities don't catch them — e.g. Scorch's Fire Wave or Lightning's Thunderstorm.</li>
+                    <li>Coordinate group fights without locking down or poisoning your own allies.</li>
+                    <li>Remember it's one-directional: both of you must trust each other for mutual protection.</li>
+                    <li>Trusted kills are inert, so you can't trade lives with a friend.</li>
                   </ul>
                 </div>
               </div>
@@ -1210,11 +1201,10 @@ export default function ShardsGuidePage() {
                   </thead>
                   <tbody>
                     {[
-                      { tier: "Fast (15–20s)", abilities: "Skybound Leap (15s), Phase Step (20s), Shock Bolt (20s)" },
-                      { tier: "Medium (30s)", abilities: "Sonic Pulse, Vine Snare, Umbral Veil, Ice Domain, Frostbite" },
-                      { tier: "Medium-High (40s)", abilities: "Life Surge (40s), Verdant Domain (40s)" },
-                      { tier: "Slow (50s)", abilities: "Abyss Call (50s), Cursed Horde (50s)" },
-                      { tier: "Very Slow (60s)", abilities: "Resistance, Thunderstorm, Infernal Ring, Wind Dominion" },
+                      { tier: "Short (60–75s)", abilities: "Echolocate (60s), Sonic Shriek (75s)" },
+                      { tier: "Medium (100–120s)", abilities: "Dash (100s/charge), Health Drain, Fire Wave, Vine Grapple, Shadowstep, Sky Dash, Driller (120s)" },
+                      { tier: "Long (180s)", abilities: "Thunderstorm, Overheal, Black Flame, Grove Prison, Shadow Domain, Boulder Throw" },
+                      { tier: "Meter-charged", abilities: "Sonic Shriek (Sound), Skyfall (Pressure, ~5 min), Black Flame (Rage)" },
                     ].map(({ tier, abilities }) => (
                       <tr key={tier} className="border-b border-white/5 hover:bg-white/5 transition-colors">
                         <td className="py-3 px-4">
@@ -1234,40 +1224,40 @@ export default function ShardsGuidePage() {
                     title: "Damage Abilities",
                     color: "border-red-500/20",
                     items: [
-                      "Arctic - Frostbite: 8 dmg + extreme CC (T1)",
-                      "Lightning - Thunderstorm: 5×8 dmg AoE (T2)",
-                      "Lightning - Shock Bolt: 6 dmg + weakness (T1)",
-                      "Hell - Infernal Ring: fire dmg + knockback (T2)",
+                      "Echo - Sonic Shriek: up to 5♥ true damage (A2)",
+                      "Lightning - Thunderstorm: 3× 1–2.5♥ AoE (A2)",
+                      "Sky - Skyfall: 3.5–4.5♥ slam (A2)",
+                      "Lightning - Dash: 2.5♥ + lockout on path (A1)",
                     ],
                   },
                   {
                     title: "Crowd Control",
                     color: "border-blue-500/20",
                     items: [
-                      "Nature - Vine Snare: complete root (Slowness XI + Jump -5)",
-                      "Arctic - Frostbite: extreme slowness + freeze",
-                      "Hell - Cursed Horde: weakness + slowness + skeletons",
-                      "Echo - Abyss Call: darkness + slowness + mining fatigue",
+                      "Nature - Vine Grapple: pull + poison + stun (A1)",
+                      "Echo - Echolocate: glow + darkness + close stun (A1)",
+                      "Earth - Driller: bury untrusted players for 8s (A1)",
+                      "Nature - Grove Prison: leaf ring + wind-charge lock (A2)",
                     ],
                   },
                   {
                     title: "Mobility",
                     color: "border-cyan-500/20",
                     items: [
-                      "Sky - Skybound Leap: fast horizontal launch (15s CD)",
-                      "Shadow - Phase Step: teleport to enemy (20s CD)",
-                      "Sky - Wind Dominion: speed boost + enemy pull (60s CD)",
+                      "Sky - Sky Dash: long + short dash, no fall damage (A1)",
+                      "Lightning - Dash: 15–20 block dash (A1)",
+                      "Shadow - Shadowstep: teleport behind your target (A1)",
+                      "Nature - Vine Grapple: swing/reel to walls & ceilings (A1)",
                     ],
                   },
                   {
-                    title: "Healing & Detection",
+                    title: "Sustain & Zoning",
                     color: "border-green-500/20",
                     items: [
-                      "Health - Life Surge: full instant heal (40s CD)",
-                      "Health - Resistance: damage reduction 15s (60s CD)",
-                      "Nature - Verdant Domain: healing zone (40s CD)",
-                      "Echo - Sonic Pulse: reveal enemies (glowing)",
-                      "Shadow - Umbral Veil: invisibility + blind enemies",
+                      "Health - Health Drain: lifesteal aura + 2♥ steal (A1)",
+                      "Health - Overheal: up to 20♥ max health (A2)",
+                      "Scorch - Black Flame: rage-scaled damage, +50% (A2)",
+                      "Shadow - Shadow Domain: blind dome + self buffs (A2)",
                     ],
                   },
                 ].map(({ title, color, items }) => (
@@ -1297,9 +1287,9 @@ export default function ShardsGuidePage() {
                   </thead>
                   <tbody>
                     {[
-                      { range: "Small (5 blocks)", abilities: "Infernal Ring" },
-                      { range: "Medium (8 blocks)", abilities: "Sonic Pulse, Shock Bolt, Frostbite, Vine Snare, Abyss Call, Ice Domain" },
-                      { range: "Large (10–12 blocks)", abilities: "Cursed Horde, Umbral Veil, Verdant Domain, Wind Dominion, Thunderstorm" },
+                      { range: "Close (6–8 blocks)", abilities: "Fire Wave (6), Echolocate stun (8)" },
+                      { range: "Medium (15–20 blocks)", abilities: "Dash (15–20), Health Drain (20), Sonic Shriek (20), Grove Prison ring (~20)" },
+                      { range: "Long (25–30 blocks)", abilities: "Shadowstep (25), Shadow Domain dome (25), Echolocate (30), Thunderstorm (30)" },
                     ].map(({ range, abilities }) => (
                       <tr key={range} className="border-b border-white/5 hover:bg-white/5 transition-colors">
                         <td className="py-3 px-4">
