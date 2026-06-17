@@ -26,6 +26,7 @@ import {
   MessageCircle,
   ArrowUp,
   Box,
+  Waves,
 } from "lucide-react";
 import Link from "next/link";
 
@@ -112,7 +113,7 @@ const SHARDS: ShardData[] = [
       cooldown: "60s",
       range: "30 blocks",
       description:
-        "Untrusted players within 30 blocks are marked with Glowing (visible through walls) and Darkness for 30 seconds. Anyone within 8 blocks is additionally stunned for 3 seconds.",
+        "Untrusted players within 30 blocks are marked with Glowing (visible through walls) and Darkness for 30 seconds. Anyone within 8 blocks is additionally frozen in place for 3 seconds — locked even in mid-air.",
     },
     tier2: {
       name: "Sonic Shriek",
@@ -182,7 +183,7 @@ const SHARDS: ShardData[] = [
       name: "Driller",
       cooldown: "120s",
       description:
-        "Burrow underground for 10 seconds with Speed, carving a self-restoring tunnel. Passing beneath an untrusted player roots and buries them for 8 seconds — a full stun where they can only eat golden apples.",
+        "Swim freely through the ground for 10 seconds in the direction you look — up, down, or sideways — carving a self-restoring tunnel as you go. Passing beneath an untrusted player freezes them for 8 seconds (dragged into the earth if grounded, locked in place if airborne), able only to eat golden apples.",
     },
     tier2: {
       name: "Boulder Throw",
@@ -276,7 +277,7 @@ const SHARDS: ShardData[] = [
       name: "Vine Grapple",
       cooldown: "120s",
       description:
-        "Fire a ray-traced vine. Hit an untrusted player to pull, poison, and stun them; hit a wall or ceiling to swing or reel yourself toward it for traversal.",
+        "Fire a ray-traced vine. Hit an untrusted player to pull, poison, and freeze them in place a moment later (often mid-air); hit a wall or ceiling to swing or reel yourself toward it for traversal.",
     },
     tier2: {
       name: "Grove Prison",
@@ -284,6 +285,31 @@ const SHARDS: ShardData[] = [
       range: "~20-block ring",
       description:
         "Summon a ~20-block ring of leaf walls for 20 seconds. Untrusted players inside cannot throw wind charges, and touching the walls inflicts Poison II.",
+    },
+  },
+  {
+    id: "ocean",
+    name: "Ocean",
+    icon: Waves,
+    color: "text-blue-400",
+    borderColor: "border-blue-500/40",
+    bgColor: "bg-blue-500/10",
+    description: "Aquatic zoning and pressure.",
+    passive:
+      "Conduit Power + Dolphin's Grace — Permanent underwater breathing, vision, and faster mining underwater, plus a swim-speed boost while held.",
+    tier1: {
+      name: "Riptide Zone",
+      cooldown: "120s",
+      range: "15 blocks",
+      description:
+        "Drop a churning water zone at your feet for 10 seconds. Untrusted players inside take armour-bypassing drowning damage every second and are weighed down with Mining Fatigue and Hunger.",
+    },
+    tier2: {
+      name: "Hydro Beam",
+      cooldown: "180s",
+      range: "25 blocks",
+      description:
+        "Fire a pressurized water beam that stops at the first wall. Every untrusted player it passes through takes 4.5–5 hearts of true damage and is knocked back hard.",
     },
   },
 ];

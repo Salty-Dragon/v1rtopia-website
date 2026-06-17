@@ -16,6 +16,7 @@ import {
   Wrench,
   Scale,
   Sparkles,
+  Waves,
 } from "lucide-react";
 import Link from "next/link";
 
@@ -48,6 +49,26 @@ const NAV_LINKS = [
 ];
 
 const VERSIONS: VersionEntry[] = [
+  {
+    id: "ocean-release",
+    version: "Ocean Shard",
+    subtitle: '"Tides Rising"',
+    date: "June 2026",
+    summary:
+      "The Ocean Shard is now playable — its full kit goes live: a Conduit Power passive, the Riptide Zone, and the Hydro Beam. Its final in-game texture is still on the way.",
+    content: (
+      <>
+        <ChangeSection icon={Waves} title="🌊 Ocean Is Live">
+          <ChangeItem title="The Ocean Kit" prs="">
+            <li>🫧 <strong>Passive</strong> — Conduit Power + Dolphin&apos;s Grace: underwater breathing, vision, faster underwater mining, and a swim-speed boost</li>
+            <li>🌀 <strong>Riptide Zone (A1)</strong> — drop a 15-block water zone for 10s; untrusted players inside take armour-bypassing drowning damage each second plus Mining Fatigue and Hunger</li>
+            <li>💥 <strong>Hydro Beam (A2)</strong> — a pressurized water beam that stops at the first wall, dealing 4.5–5 hearts of true damage and heavy knockback to everyone it passes through</li>
+            <li>🎨 The kit is fully live; only its final custom texture is still in the works</li>
+          </ChangeItem>
+        </ChangeSection>
+      </>
+    ),
+  },
   {
     id: "v2-0-0",
     version: "Version 2.0",
@@ -82,12 +103,12 @@ const VERSIONS: VersionEntry[] = [
           </ChangeItem>
           <ChangeItem title="Reworked Shards" prs="">
             <p className="text-gray-400 text-sm mb-2">
-              Eight playable shards, each with a passive and two activated abilities — all redesigned:
+              Nine playable shards, each with a passive and two activated abilities — all redesigned:
             </p>
             <li>🔥 <strong>Hell is now Scorch</strong> — fire control with a rage-fuelled Black Flame</li>
             <li>🪨 <strong>Earth</strong> is fully realized — depth-scaled damage, a burrowing Driller, and orbiting boulders</li>
             <li>⚡ Lightning, ❤️ Health, 🌑 Shadow, ⚡ Echo, 🌤️ Sky, and 🌿 Nature all rebuilt with new abilities and charge meters</li>
-            <li>🌊 Ocean is built and waiting on its texture before it goes live</li>
+            <li>🌊 <strong>Ocean</strong> is now playable too — full kit live, with only its final texture still on the way</li>
           </ChangeItem>
           <ChangeItem title="Directional Trust" prs="">
             <li>🤝 <code>/trust</code>, <code>/untrust</code>, <code>/trustlist</code> — trusting a player shields them from <em>your</em> abilities</li>
