@@ -22,7 +22,14 @@ import {
   ExternalLink,
   Loader2,
 } from "lucide-react";
-import { fetchServerStats, fetchLeaderboard, type ServerStats, type LeaderboardEntry } from "@/lib/api";
+import Link from "next/link";
+import {
+  fetchServerStats,
+  fetchLeaderboard,
+  type ServerStats,
+  type LeaderboardEntry,
+  type LeaderboardType,
+} from "@/lib/api";
 import { formatNumber, formatPlaytime, formatWithCommas, getAvatarInitials } from "@/lib/formatters";
 
 // ========================================
@@ -49,7 +56,7 @@ const MOCK_STATS = [
   { label: "Server Uptime", value: "99.8%", icon: Clock, color: "text-cyan-400" },
 ];
 
-const LEADERBOARD_TABS = ["Playtime", "Balance", "Kills", "Blocks Mined"];
+const LEADERBOARD_TABS = ["Kills", "Playtime", "Blocks Mined"];
 
 const MOCK_LEADERBOARDS = {
   Playtime: [
@@ -425,29 +432,29 @@ function StatsSection() {
               icon: TrendingUp, 
               color: "text-blue-400" 
             },
-            { 
-              label: "Blocks Mined", 
-              value: "8.4M", // Keep mock for now - not in API
-              icon: Pickaxe, 
-              color: "text-amber-400" 
+            {
+              label: "Blocks Mined",
+              value: formatNumber(serverStats.total_blocks_broken),
+              icon: Pickaxe,
+              color: "text-amber-400"
             },
-            { 
-              label: "Total Kills", 
-              value: formatNumber(serverStats.total_kills), 
-              icon: Skull, 
-              color: "text-red-400" 
+            {
+              label: "PvP Kills",
+              value: formatNumber(serverStats.total_pvp_kills),
+              icon: Skull,
+              color: "text-red-400"
             },
-            { 
-              label: "Richest Player", 
-              value: "$4.2M", // Keep mock for now - not in API
-              icon: DollarSign, 
-              color: "text-yellow-400" 
+            {
+              label: "Mob Kills",
+              value: formatNumber(serverStats.total_mob_kills),
+              icon: Skull,
+              color: "text-yellow-400"
             },
-            { 
-              label: "Server Uptime", 
-              value: "99.8%", // Keep mock for now - not in API
-              icon: Clock, 
-              color: "text-cyan-400" 
+            {
+              label: "Total Playtime",
+              value: formatPlaytime(serverStats.total_playtime_minutes),
+              icon: Clock,
+              color: "text-cyan-400"
             },
           ];
           
@@ -542,22 +549,24 @@ function LeaderboardSection() {
       try {
         setLoading(true);
         
-        let apiType: 'kills' | 'playtime' | null = null;
-        
+        let apiType: LeaderboardType | null = null;
+
         // Map tab names to API endpoints
         if (activeTab === 'Kills') {
           apiType = 'kills';
         } else if (activeTab === 'Playtime') {
           apiType = 'playtime';
+        } else if (activeTab === 'Blocks Mined') {
+          apiType = 'blocks_broken';
         }
-        
+
         // For tabs without API support, use mock data
         if (!apiType) {
           setLeaderboardData(MOCK_LEADERBOARDS[activeTab as keyof typeof MOCK_LEADERBOARDS]);
           setLoading(false);
           return;
         }
-        
+
         const response = await fetchLeaderboard(apiType, 5);
         
         if (!isMounted) return;
@@ -566,16 +575,14 @@ function LeaderboardSection() {
           setError(response.error || 'Failed to load leaderboard');
           setLeaderboardData(MOCK_LEADERBOARDS[activeTab as keyof typeof MOCK_LEADERBOARDS]);
         } else {
-          // Transform API data to display format
+          // Transform API data to display format. Every entry carries `value`
+          // (the metric for the active board); format it per tab.
           const transformedData = response.data.data.map((entry: LeaderboardEntry) => {
-            let value = '';
-            
-            if (activeTab === 'Kills' && entry.kills !== undefined) {
-              value = formatWithCommas(entry.kills);
-            } else if (activeTab === 'Playtime' && entry.playtime_minutes !== undefined) {
-              value = formatPlaytime(entry.playtime_minutes);
-            }
-            
+            const value =
+              activeTab === 'Playtime'
+                ? formatPlaytime(entry.value)
+                : formatWithCommas(entry.value);
+
             return {
               rank: entry.rank,
               username: entry.username,
@@ -694,6 +701,15 @@ function LeaderboardSection() {
             </AnimatePresence>
           )}
         </motion.div>
+
+        <div className="mt-8 text-center">
+          <Link
+            href="/leaderboards"
+            className="inline-flex items-center gap-2 px-6 py-3 rounded-xl glass border border-green-500/30 text-green-400 hover:border-green-500/60 transition-all duration-300 font-medium"
+          >
+            View full leaderboards <ChevronRight className="w-4 h-4" />
+          </Link>
+        </div>
       </div>
     </section>
   );

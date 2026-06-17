@@ -1,16 +1,22 @@
-// API Configuration and Type Definitions
+// Client-side API helpers for the ShardsSMPv2 V2 stats endpoints.
+// The API is served same-origin by this app's /data/v1 route handlers (nginx
+// reserves /api for the legacy service), so paths are relative. Server components
+// should import lib/stats-queries directly instead.
 
-const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3002';
+const API_BASE_URL = ""; // same-origin; relative /data/v1/* paths
 
 // ========================================
-// TYPE DEFINITIONS
+// TYPE DEFINITIONS (V2 contract)
 // ========================================
 
 export interface ServerStats {
   total_players: number;
-  total_kills: number;
-  total_deaths: number;
-  total_experience: number;
+  total_pvp_kills: number;
+  total_pvp_deaths: number;
+  total_mob_kills: number;
+  total_blocks_broken: number;
+  total_blocks_placed: number;
+  total_playtime_minutes: number;
   active_last_7_days: number;
   timestamp: string;
 }
@@ -19,21 +25,61 @@ export interface LeaderboardEntry {
   rank: number;
   uuid: string;
   username: string;
-  kills?: number;
-  deaths?: number;
-  kd_ratio?: number;
-  experience?: number;
-  playtime_minutes?: number;
-  current_shard?: string;
+  current_shard: string | null;
   last_seen: string;
+  value: number;
+  pvp_kills: number;
+  pvp_deaths: number;
+  kd: number;
+  mob_kills: number;
+  blocks_broken: number;
+  blocks_placed: number;
+  damage_dealt: number;
+  damage_taken: number;
+  playtime_minutes: number;
 }
+
+export type LeaderboardType =
+  | "kills"
+  | "deaths"
+  | "kd"
+  | "playtime"
+  | "mob_kills"
+  | "blocks_broken"
+  | "blocks_placed"
+  | "damage_dealt"
+  | "damage_taken";
 
 export interface LeaderboardResponse {
   leaderboard: string;
   count: number;
   data: LeaderboardEntry[];
-  cached?: boolean;
-  cachedAt?: string;
+}
+
+export interface ShardStat {
+  shard_type: string;
+  players: number;
+  pvp_kills: number;
+  pvp_deaths: number;
+  ability_uses: number;
+  playtime_minutes: number;
+}
+
+export interface ShardsResponse {
+  count: number;
+  data: ShardStat[];
+}
+
+export interface AbilityStat {
+  ability_key: string;
+  shard_type: string;
+  total_uses: number;
+  unique_users: number;
+}
+
+export interface AbilitiesResponse {
+  count: number;
+  data: AbilityStat[];
 }
 
 export interface ApiResponse<T> {
@@ -49,128 +95,111 @@ export interface ApiResponse<T> {
 export class ApiError extends Error {
   constructor(public status: number, message: string) {
     super(message);
-    this.name = 'ApiError';
+    this.name = "ApiError";
   }
 }
 
 // ========================================
-// FETCH WRAPPER FUNCTIONS
+// FETCH WRAPPER
 // ========================================
 
-// Track if API is available to avoid repeated failed requests
-// Note: This is module-level state suitable for client-side use.
-// The health check ensures only one check runs within HEALTH_CHECK_INTERVAL,
-// minimizing race condition impact in practice.
+// Module-level health gate so a down API doesn't trigger a request per render.
 let apiAvailable: boolean | null = null;
 let lastHealthCheck = 0;
-const HEALTH_CHECK_INTERVAL = 60000; // Check every 60 seconds
+const HEALTH_CHECK_INTERVAL = 60000;
 
-async function fetchWithRetry<T>(
-  url: string,
-  retries = 0,
-  delay = 1000
-): Promise<ApiResponse<T>> {
-  // Check API health periodically
+async function fetchWithRetry<T>(url: string, retries = 0, delay = 1000): Promise<ApiResponse<T>> {
   const now = Date.now();
   if (apiAvailable === null || now - lastHealthCheck > HEALTH_CHECK_INTERVAL) {
     apiAvailable = await checkApiHealth();
     lastHealthCheck = now;
   }
-
-  // Skip request if API is known to be unavailable
   if (!apiAvailable) {
-    return { error: 'API unavailable' };
+    return { error: "API unavailable" };
   }
+
   for (let i = 0; i <= retries; i++) {
     const controller = new AbortController();
-    const timeoutId = setTimeout(() => controller.abort(), 3000); // 3 second timeout
-    
+    const timeoutId = setTimeout(() => controller.abort(), 3000);
     try {
       const response = await fetch(url, {
-        method: 'GET',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        cache: 'no-store',
+        method: "GET",
+        headers: { "Content-Type": "application/json" },
+        cache: "no-store",
         signal: controller.signal,
       });
-
       clearTimeout(timeoutId);
 
       if (response.status === 429) {
-        // Rate limited - wait and retry
         if (i < retries) {
-          await new Promise(resolve => setTimeout(resolve, delay * (i + 1)));
+          await new Promise((r) => setTimeout(r, delay * (i + 1)));
           continue;
         }
-        throw new ApiError(429, 'Rate limit exceeded');
+        throw new ApiError(429, "Rate limit exceeded");
       }
-
       if (!response.ok) {
         throw new ApiError(response.status, `API request failed: ${response.statusText}`);
       }
-
       const jsonData = await response.json();
-      return { data: jsonData as T, cached: jsonData.cached };
+      return { data: jsonData as T };
     } catch (error) {
       clearTimeout(timeoutId);
-      
       if (i === retries) {
-        // Mark API as unavailable on connection/network errors
-        if (error instanceof Error && (error.name === 'AbortError' || error instanceof TypeError)) {
+        if (error instanceof Error && (error.name === "AbortError" || error instanceof TypeError)) {
           apiAvailable = false;
         }
         if (error instanceof ApiError) {
           return { error: error.message };
         }
-        return { error: error instanceof Error ? error.message : 'Unknown error' };
+        return { error: error instanceof Error ? error.message : "Unknown error" };
       }
-      // Wait before retrying
-      await new Promise(resolve => setTimeout(resolve, delay));
+      await new Promise((r) => setTimeout(r, delay));
     }
   }
-  return { error: 'Failed after retries' };
+  return { error: "Failed after retries" };
 }
 
 // ========================================
-// API ENDPOINT FUNCTIONS
+// ENDPOINTS
 // ========================================
 
-/**
- * Fetch server statistics
- */
 export async function fetchServerStats(): Promise<ApiResponse<ServerStats>> {
-  const url = `${API_BASE_URL}/api/v1/stats/server`;
-  return fetchWithRetry<ServerStats>(url);
+  return fetchWithRetry<ServerStats>(`${API_BASE_URL}/data/v1/stats/server`);
 }
 
-/**
- * Fetch leaderboard data
- * @param type - Type of leaderboard (kills, kd, experience, playtime)
- * @param limit - Number of entries to fetch (default: 5)
- */
 export async function fetchLeaderboard(
-  type: 'kills' | 'kd' | 'experience' | 'playtime',
-  limit: number = 5
+  type: LeaderboardType,
+  limit = 10
 ): Promise<ApiResponse<LeaderboardResponse>> {
-  const url = `${API_BASE_URL}/api/v1/leaderboards/${type}?limit=${limit}`;
-  return fetchWithRetry<LeaderboardResponse>(url);
+  return fetchWithRetry<LeaderboardResponse>(
+    `${API_BASE_URL}/data/v1/leaderboards/${type}?limit=${limit}`
+  );
 }
 
-/**
- * Check API health
- */
+export async function fetchShards(): Promise<ApiResponse<ShardsResponse>> {
+  return fetchWithRetry<ShardsResponse>(`${API_BASE_URL}/data/v1/shards`);
+}
+
+export async function fetchShardTop(
+  shard: string,
+  limit = 10
+): Promise<ApiResponse<{ shard: string; count: number; data: LeaderboardEntry[] }>> {
+  return fetchWithRetry(`${API_BASE_URL}/data/v1/shards/${shard}/top?limit=${limit}`);
+}
+
+export async function fetchAbilities(limit = 20): Promise<ApiResponse<AbilitiesResponse>> {
+  return fetchWithRetry<AbilitiesResponse>(`${API_BASE_URL}/data/v1/abilities?limit=${limit}`);
+}
+
 export async function checkApiHealth(): Promise<boolean> {
   const controller = new AbortController();
-  const timeoutId = setTimeout(() => controller.abort(), 2000); // 2 second timeout
-  
+  const timeoutId = setTimeout(() => controller.abort(), 2000);
   try {
-    const response = await fetch(`${API_BASE_URL}/api/v1/health`, {
-      method: 'GET',
-      cache: 'no-store',
+    const response = await fetch(`${API_BASE_URL}/data/v1/health`, {
+      method: "GET",
+      cache: "no-store",
       signal: controller.signal,
     });
-    
     clearTimeout(timeoutId);
     return response.ok;
   } catch {
