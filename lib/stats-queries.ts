@@ -437,3 +437,16 @@ export const getPlayer = unstable_cache(
   ["player"],
   { revalidate: 30 }
 );
+
+export const getPlayerByName = unstable_cache(
+  async (name: string): Promise<PlayerProfile | null> => {
+    const [row] = await query<{ uuid: Buffer }>(
+      `SELECT uuid FROM players WHERE name = ? LIMIT 1`,
+      [name]
+    );
+    if (!row) return null;
+    return getPlayer(uuidToString(row.uuid));
+  },
+  ["player-by-name"],
+  { revalidate: 30 }
+);
