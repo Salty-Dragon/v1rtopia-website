@@ -57,8 +57,15 @@ npm start
 v1rtopia-website/
 ├── app/
 │   ├── page.tsx          # Main homepage component
+│   ├── leaderboards/     # Full leaderboards page (all stat dimensions)
+│   ├── data/v1/          # Same-origin stats API route handlers (see "Stats API")
 │   ├── layout.tsx        # Root layout
 │   └── globals.css       # Global styles & utilities
+├── lib/
+│   ├── api.ts            # Browser client for /data/v1 (with mock fallback)
+│   ├── stats-queries.ts  # Server-only cached SQL over shards_v2
+│   ├── db.ts             # mysql2 pool + UUID helpers
+│   └── formatters.ts     # Display helpers
 ├── public/               # Static assets
 ├── next.config.ts        # Next.js configuration
 ├── tailwind.config.ts    # Tailwind configuration
@@ -110,32 +117,32 @@ Create a `.env` file in the root directory based on `.env.example`:
 cp .env.example .env
 ```
 
-Available environment variables:
+Available environment variables (in `.env`):
 
-- **`PORT`** - The port the Next.js application will listen on (default: 3000)
-  - **Note:** This must be set as an environment variable, not in the `.env` file
+- **`DB_HOST` / `DB_PORT` / `DB_NAME` / `DB_USER` / `DB_PASSWORD`** — connection to the
+  ShardsSMPv2 stats database (`shards_v2`), read server-side by the `/data/v1` route handlers.
+- **`NEXT_PUBLIC_API_URL`** — optional override for the stats API base. By default the stats
+  API is served **same-origin** under `/data/v1`, so the browser uses relative paths and this
+  is left unset.
 
-- **`NEXT_PUBLIC_API_URL`** - Base URL for the v1rtopia API (default: `http://localhost:3002`)
-  - For local development: `http://localhost:3002`
-  - For production with nginx proxy on same domain: `https://virtopia.com`
-  - The application automatically appends `/api/v1/*` paths to this base URL
+The HTTP port is pinned to **3002** in `package.json` (`next dev -p 3002` / `next start -p 3002`)
+so it sits behind the nginx `/ → :3002` proxy. (Next's default 3000 is used by the admin panel,
+and nginx reserves `/api` for the legacy stats service on `:3001` — hence the V2 API lives at
+`/data/v1`, not `/api`.)
 
-### Custom Port Configuration
+## Stats API (`/data/v1`)
 
-You can run the application on a custom port by setting the `PORT` environment variable in your shell:
+Read-only JSON endpoints served by this app's route handlers (`app/data/v1/`), querying
+`shards_v2` via `lib/stats-queries.ts` (cached ~30s). Consumed by the homepage, the
+`/leaderboards` page, and the Discord stats bot.
 
-```bash
-# Inline (Unix-like systems)
-PORT=3001 npm run dev
-
-# Inline (Windows PowerShell)
-$env:PORT=3001; npm run dev
-
-# Inline (Windows CMD)
-set PORT=3001 && npm run dev
-```
-
-The application will be available at `http://localhost:3001` (or your configured port).
+- `GET /data/v1/stats/server` — server totals
+- `GET /data/v1/leaderboards/<metric>?limit=` — `metric` ∈ kills, kd, deaths, playtime,
+  mob_kills, blocks_broken, blocks_placed, damage_dealt, damage_taken
+- `GET /data/v1/shards` · `GET /data/v1/shards/<shard>/top?limit=`
+- `GET /data/v1/abilities?limit=`
+- `GET /data/v1/players/<uuid>` · `GET /data/v1/players?name=<name>`
+- `GET /data/v1/health`
 
 ## Deployment
 
@@ -175,10 +182,8 @@ The guide includes:
 
 5. **Set up process manager (optional but recommended):**
    ```bash
-   # Using PM2
-   npm install -g pm2
-   pm2 start npm --name "v1rtopia" -- start
-   pm2 startup
+   # Using PM2 (this deployment runs as the `website` process)
+   pm2 start npm --name website -- run start
    pm2 save
    ```
 
