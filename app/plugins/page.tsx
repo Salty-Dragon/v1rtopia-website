@@ -8,6 +8,7 @@ import {
   Sparkles,
   Flag,
   RotateCcw,
+  Moon,
   MessageCircle,
   ChevronRight,
   ArrowRight,
@@ -74,6 +75,17 @@ const PLUGINS: PluginCard[] = [
     badge: "Event",
     accent: "text-purple-400",
     border: "border-purple-500/30 hover:border-purple-400/60",
+  },
+  {
+    name: "Blood Moon",
+    tagline: "Event · Server-ending",
+    description:
+      "Three chosen rise as the Blood Moon. Sacrifice players on the ritual pedestals to turn them, grow stronger with every kill, and end the world — unless the Leader falls first.",
+    href: "/bloodmoon-guide",
+    icon: Moon,
+    badge: "Event",
+    accent: "text-red-400",
+    border: "border-red-500/30 hover:border-red-400/60",
   },
 ];
 
