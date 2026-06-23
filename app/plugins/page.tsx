@@ -9,6 +9,7 @@ import {
   Flag,
   RotateCcw,
   Moon,
+  Swords,
   MessageCircle,
   ChevronRight,
   ArrowRight,
@@ -86,6 +87,17 @@ const PLUGINS: PluginCard[] = [
     badge: "Event",
     accent: "text-red-400",
     border: "border-red-500/30 hover:border-red-400/60",
+  },
+  {
+    name: "Celestials",
+    tagline: "Event · Angels vs Demons",
+    description:
+      "The server splits into Angels and Demons, one Captain each wielding a mythic. Cross-faction kills convert the fallen, and the war ends when a Captain dies — their mythic relocates to a pedestal to be claimed.",
+    href: "/celestials-guide",
+    icon: Swords,
+    badge: "Event",
+    accent: "text-amber-400",
+    border: "border-amber-500/30 hover:border-amber-400/60",
   },
 ];
 
