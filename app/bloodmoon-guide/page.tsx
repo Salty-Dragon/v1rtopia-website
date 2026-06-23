@@ -14,7 +14,7 @@ import {
   Crown,
   Users,
   Swords,
-  Ghost,
+  Sparkles,
   Skull,
   Droplet,
   Heart,
@@ -84,13 +84,17 @@ const ADMIN_COMMANDS: CommandData[] = [
   { command: "/bloodmoon start", description: "Begin an event, picking the Blood team at random from online players (needs event.min-online).", permission: "shardsbloodmoon.admin" },
   { command: "/bloodmoon start <leader> <sub...>", description: "Stage an explicit Blood team — first name is the Leader, the rest are Subordinates (all must be online).", permission: "shardsbloodmoon.admin" },
   { command: "/bloodmoon stop", description: "End the event immediately with no winner and no prize, fully reverting everyone.", permission: "shardsbloodmoon.admin" },
-  { command: "/bloodmoon info", description: "Show the active event: roles, kill counts, spectator'd victims and active sacrifices.", permission: "shardsbloodmoon.admin" },
+  { command: "/bloodmoon info", description: "Show the active event: roles, kill counts, survivors left, active sacrifices, the ritual speed and whether kill-conversion is on.", permission: "shardsbloodmoon.admin" },
+  { command: "/bloodmoon ritual speed <n>", description: "Set the sacrifice time multiplier live (e.g. 60 → a 15-min ritual finishes in ~15s). Great for content/testing.", permission: "shardsbloodmoon.admin" },
+  { command: "/bloodmoon conversion <true|false>", description: "Toggle live whether Blood kills convert their victim into a Minion. false = kills are ordinary PvP deaths (no conversion). With no argument, reports the current state. Sacrifices always convert regardless. Resets to the config default when an event ends.", permission: "shardsbloodmoon.admin" },
+  { command: "/bloodmoon set <player> <role>", description: "Reassign a player mid-event: Leader, Subordinate, Minion, or Normal (release them back to a survivor — the 'undo an unfair kill' lever).", permission: "shardsbloodmoon.admin" },
   { command: "/bloodmoon reload", description: "Reload config.yml and messages.yml.", permission: "shardsbloodmoon.admin" },
 ];
 
 const EVENT_CONFIG: ConfigRow[] = [
   { key: "min-online", def: "4", desc: "Random /bloodmoon start refuses unless at least this many players are online." },
   { key: "subordinate-count", def: "2", desc: "Subordinates picked alongside the single Leader (total Blood team = 1 + this)." },
+  { key: "kill-converts", def: "true", desc: "When a Blood member kills a normal player, convert the victim into a Minion? false = kills stay ordinary PvP deaths. Toggle live with /bloodmoon conversion; resets to this default when an event ends." },
 ];
 
 const LEADER_CONFIG: ConfigRow[] = [
@@ -115,13 +119,22 @@ const SACRIFICE_CONFIG: ConfigRow[] = [
   { key: "settle-delay-ticks", def: "15", desc: "Debounce after a head drop before sweeping pedestals." },
   { key: "concurrent", def: "true", desc: "Allow several sacrifices on different pedestals at once." },
   { key: "boss-bar-color", def: "RED", desc: "Colour of each sacrifice's countdown boss bar." },
+  { key: "float-height", def: "2.0", desc: "Blocks the head floats above the pedestal top." },
+  { key: "health-text-offset", def: "3.0", desc: "Blocks the floating HP text sits above the head." },
+  { key: "rotate-degrees-per-tick", def: "4.0", desc: "How fast the head spins (per visual tick)." },
+  { key: "default-ritual-speed", def: "1.0", desc: "Starting time multiplier; override live with /bloodmoon ritual speed." },
+  { key: "glow", def: "true", desc: "Red glow outline on the head-entity." },
+];
+
+const VISUALS_CONFIG: ConfigRow[] = [
+  { key: "pulse-interval-ticks", def: "5", desc: "Visual ticks between the dark-red pulse bursts from the head." },
+  { key: "pulse-particle-count", def: "16", desc: "Dark-red dust points per pulse ring." },
+  { key: "beam-height", def: "30.0", desc: "Height (blocks) of the bright-red success beam before it bursts in the sky." },
 ];
 
 const END_CONFIG: ConfigRow[] = [
   { key: "revert-blood-members", def: "true", desc: "On win OR loss, clear converted members' buffs/teams/nametags. false = keep the Blood identity as a trophy." },
   { key: "remove-leader-shard", def: "true", desc: "Strip the Leader's Blood Shard on revert." },
-  { key: "return-spectators", def: "true", desc: "Spectator'd victims are always sent back to survival at spawn." },
-  { key: "spawn-world", def: "\"\"", desc: "World whose spawn spectators return to; blank = each player's own world spawn." },
   { key: "prize.broadcast", def: "(text)", desc: "Server-wide message on a Blood win; <leader> is substituted." },
   { key: "prize.commands", def: "(list)", desc: "Console commands run on a Blood win; <leader> is substituted (the configurable reward)." },
 ];
@@ -527,7 +540,7 @@ export default function BloodMoonGuidePage() {
                     { icon: Crown, title: "The Leader rises", desc: "Gains the real Blood Shard, 20 hearts, and grows stronger with every kill." },
                     { icon: Droplet, title: "Blood Sacrifices", desc: "Throw a player's head onto a Rebirth pedestal to begin a 15-minute ritual to turn them." },
                     { icon: Swords, title: "Every kill feeds them", desc: "Blood members deal more damage with each kill; the Leader also gains permanent passives." },
-                    { icon: Ghost, title: "The slain watch", desc: "Anyone killed by the Blood Moon is sent to spectator — out of the fight." },
+                    { icon: Skull, title: "The slain rise", desc: "Anyone killed by the Blood Moon is bound as a Minion — they respawn in survival on the Blood team. Admins can toggle this off so kills stay ordinary PvP." },
                   ].map(({ icon: Icon, title, desc }) => (
                     <div key={title} className="flex items-start gap-3 p-4 rounded-xl bg-white/5 border border-white/5">
                       <span className="w-9 h-9 rounded-lg bg-red-500/10 border border-red-500/30 flex items-center justify-center shrink-0">
@@ -565,7 +578,7 @@ export default function BloodMoonGuidePage() {
                   },
                   {
                     icon: Skull, tag: "", name: "Minion", hearts: "20 ❤",
-                    points: ["Created by a Blood Sacrifice", "On Team Blood Moon", "No buffs at all", "Bright-red name, no tag"],
+                    points: ["Turned by a kill or a sacrifice", "On Team Blood Moon", "No buffs at all", "Bright-red name, no tag"],
                   },
                 ].map(({ icon: Icon, tag, name, hearts, points }) => (
                   <div key={name} className="glass border border-red-500/20 rounded-2xl p-5 space-y-3">
@@ -616,9 +629,9 @@ export default function BloodMoonGuidePage() {
                 <div className="grid sm:grid-cols-2 gap-4">
                   {[
                     { icon: Droplet, title: "Throw a head", desc: "Drop \"V1rtopia's head\" on a pedestal → a \"V1rtopia Blood Sacrifice\" begins." },
-                    { icon: Timer, title: "15-minute ritual", desc: "The head rises as an entity with health and a countdown boss bar everyone can see." },
+                    { icon: Timer, title: "15-minute ritual", desc: "The head floats above the altar, slowly spinning with a red glow, its HP floating overhead and a countdown boss bar everyone can see." },
                     { icon: Swords, title: "Destroy it to stop it", desc: "Any non-Blood player (including the target) can attack the head-entity. Destroy it before the timer and the sacrifice FAILS." },
-                    { icon: Skull, title: "Survive and convert", desc: "If the head-entity lives the full 15 minutes, the target becomes a Blood Minion." },
+                    { icon: Skull, title: "Survive and convert", desc: "If the head survives the full 15 minutes, a beam erupts into the sky, the world hears “{player} has joined the Blood Moon!”, and the target becomes a Minion." },
                   ].map(({ icon: Icon, title, desc }) => (
                     <div key={title} className="flex items-start gap-3 p-4 rounded-xl bg-white/5 border border-white/5">
                       <span className="w-9 h-9 rounded-lg bg-red-500/10 border border-red-500/30 flex items-center justify-center shrink-0">
@@ -639,6 +652,14 @@ export default function BloodMoonGuidePage() {
                     Several sacrifices can run on different pedestals at once.
                   </p>
                 </div>
+                <div className="flex items-start gap-3 p-4 rounded-xl bg-purple-500/5 border border-purple-500/20">
+                  <Sparkles className="w-5 h-5 text-purple-300 shrink-0 mt-0.5" />
+                  <p className="text-purple-200 text-sm">
+                    <strong>Pure spectacle.</strong> Dark-red particles pulse from the head all ritual long. Success
+                    fires a beam skyward into an explosion with a screen title; a failed ritual ends the pulse with a
+                    “sacrifice has failed!” title. Tune the float height, spin speed, glow, beam and pulse in config.
+                  </p>
+                </div>
               </div>
             </section>
 
@@ -652,9 +673,9 @@ export default function BloodMoonGuidePage() {
                     <h3 className="text-lg font-bold text-red-400">The Blood Moon wins</h3>
                   </div>
                   <p className="text-gray-400 text-sm">
-                    When no surviving player is left in play — everyone has been converted to a Minion or sent to
-                    spectator by a Blood kill — the world falls. The <strong className="text-white">Leader claims the
-                    prize</strong>: a fully configurable set of console commands (items, effects, broadcasts — your call).
+                    When no surviving player is left in play — everyone has been turned into a Minion, whether by a
+                    sacrifice or by being cut down in combat — the world falls. The <strong className="text-white">Leader
+                    claims the prize</strong>: a fully configurable set of console commands (items, effects, broadcasts — your call).
                   </p>
                 </div>
                 <div className="glass border border-green-500/30 rounded-2xl p-6 space-y-3">
@@ -664,8 +685,9 @@ export default function BloodMoonGuidePage() {
                   </div>
                   <p className="text-gray-400 text-sm">
                     The instant the <strong className="text-white">Leader is defeated</strong>, Team Blood Moon loses.
-                    The event ends and everyone is restored — spectators return to survival, and (by default)
-                    converted members lose the Blood identity.
+                    The event ends and everyone is restored — by default converted members lose the Blood identity and
+                    are mortal again. (Wrongly turned someone? <code className="font-mono">/bloodmoon set &lt;player&gt; Normal</code>
+                    releases them mid-event.)
                   </p>
                 </div>
               </div>
@@ -674,6 +696,8 @@ export default function BloodMoonGuidePage() {
                 <p className="text-blue-200 text-sm">
                   While a Blood Moon runs, <strong>SMP lives are paused for everyone</strong> — no death costs a life
                   or triggers penalties. The event runs its own death rules and cleanly restores the server when it ends.
+                  A Blood member who was <strong>offline when the event ended</strong> is scrubbed the next time they log
+                  in, so bonus hearts, passives and the red nametag never follow anyone into a later session.
                 </p>
               </div>
             </section>
@@ -719,6 +743,7 @@ export default function BloodMoonGuidePage() {
               <ConfigTable title="leader:" rows={LEADER_CONFIG} />
               <ConfigTable title="subordinate:" rows={SUB_CONFIG} />
               <ConfigTable title="sacrifice:" rows={SACRIFICE_CONFIG} />
+              <ConfigTable title="visuals:" rows={VISUALS_CONFIG} />
               <ConfigTable title="cosmetics:" rows={COSMETIC_CONFIG} />
               <ConfigTable title="end: / prize:" rows={END_CONFIG} />
             </section>
@@ -756,31 +781,34 @@ export default function BloodMoonGuidePage() {
                   <FlaskConical className="w-5 h-5 text-amber-400 shrink-0 mt-0.5" />
                   <p className="text-amber-200 text-sm">
                     <strong>Internal — delete this section after validation.</strong> Goal: prove the team is picked,
-                    a sacrifice converts (and can be failed), kills send survivors to spectator, and both win and loss
-                    paths fully revert the server.
+                    a sacrifice converts (and can be failed) with its visuals, kills turn survivors into Minions, and
+                    both win and loss paths fully revert the server.
                   </p>
                 </div>
                 <div>
                   <h3 className="text-white font-semibold text-lg mb-3">Quick run</h3>
                   <ol className="space-y-2 text-gray-400 text-sm list-decimal list-inside">
-                    <li>Shorten the ritual first: set <code className="font-mono text-green-400">sacrifice.duration-seconds: 30</code> (and a low <code className="font-mono text-green-400">min-online</code> for a small test), then <code className="font-mono text-green-400">/bloodmoon reload</code>.</li>
                     <li>Make sure a Rebirth pedestal exists: look at a block and run <code className="font-mono text-green-400">/pedestal set</code>.</li>
                     <li>Start it: <code className="font-mono text-green-400">/bloodmoon start</code> (random) or <code className="font-mono text-green-400">/bloodmoon start Leader Sub1 Sub2</code>.</li>
+                    <li>Speed the ritual up for testing: <code className="font-mono text-green-400">/bloodmoon ritual speed 60</code> (15 min ⇒ ~15 s). No config edit/reload needed.</li>
                     <li>Confirm the Leader gets the Blood Shard + red nametag, and the start broadcast fires.</li>
-                    <li>As a Blood member, drop a survivor&apos;s player head on the pedestal — confirm the head-entity + countdown boss bar appear.</li>
-                    <li>Fail path: have a non-Blood player destroy the head-entity before the timer → confirm the &quot;stopped&quot; message and no conversion.</li>
-                    <li>Success path: let it run out → confirm the target converts to a red, tag-less Minion.</li>
-                    <li>Have a Blood member kill a survivor → confirm the survivor drops to spectator and the killer&apos;s kill count rises.</li>
-                    <li>Check <code className="font-mono text-green-400">/bloodmoon info</code> for roles/kills/sacrifices.</li>
-                    <li>Loss: kill the Leader → confirm the event ends, spectators return to survival, buffs/nametags clear. Win: convert/spectator everyone → confirm the prize commands run.</li>
+                    <li>As a Blood member, drop a survivor&apos;s player head on the pedestal — confirm the head floats, spins, glows red, shows HP overhead, and pulses; the countdown boss bar appears.</li>
+                    <li>Fail path: have a non-Blood player destroy the head-entity before the timer → confirm the pulse stops and the &quot;sacrifice has failed!&quot; title shows.</li>
+                    <li>Success path: let it run out → confirm the beam + sky explosion, the &quot;joined the Blood Moon!&quot; title, and the target becomes a red, tag-less Minion.</li>
+                    <li>Have a Blood member kill a survivor → confirm the victim respawns in survival as a Minion (red name) and the killer&apos;s kill count rises.</li>
+                    <li>Conversion toggle: <code className="font-mono text-green-400">/bloodmoon conversion false</code>, then have a Blood member kill a survivor → confirm the victim stays normal (no Minion conversion) while the killer&apos;s kills still rise; <code className="font-mono text-green-400">/bloodmoon conversion true</code> restores conversion. (Sacrifices should still convert either way.)</li>
+                    <li>Offline revert: turn a player into a Minion, have them log off, then <code className="font-mono text-green-400">/bloodmoon stop</code>. Start a fresh event and have them log back in → confirm they have NO bonus hearts, passives or red nametag left over.</li>
+                    <li>Wrong target? <code className="font-mono text-green-400">/bloodmoon set &lt;player&gt; Normal</code> should release them back to a survivor; try <code className="font-mono text-green-400">/bloodmoon set &lt;player&gt; Leader</code> too (old Leader is demoted).</li>
+                    <li>Check <code className="font-mono text-green-400">/bloodmoon info</code> for roles/kills/survivors/speed.</li>
+                    <li>Loss: kill the Leader → confirm the event ends and buffs/nametags clear. Win: turn everyone → confirm the prize commands run.</li>
                     <li><code className="font-mono text-green-400">/bloodmoon stop</code> mid-event should revert everyone with no prize.</li>
                   </ol>
                 </div>
                 <div className="flex items-start gap-3 p-4 rounded-xl bg-red-500/5 border border-red-500/20">
                   <Shield className="w-5 h-5 text-red-400 shrink-0 mt-0.5" />
                   <p className="text-red-200 text-sm">
-                    Watch the revert closely — no lingering max-health, potion passives, scoreboard team, or stuck
-                    spectators after the event ends. That clean restore is the whole contract for an event plugin.
+                    Watch the revert closely — no lingering max-health, potion passives, scoreboard teams, or leftover
+                    head-entities/HP displays after the event ends. That clean restore is the whole contract for an event plugin.
                   </p>
                 </div>
               </div>
