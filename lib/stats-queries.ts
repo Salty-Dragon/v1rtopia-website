@@ -4,6 +4,57 @@
 import { unstable_cache } from "next/cache";
 import { query, uuidToString, uuidToBytes } from "@/lib/db";
 
+// In-process TTL memo with single-flight, used for per-player lookups.
+//
+// Unlike unstable_cache({ revalidate }) — which is stale-while-revalidate: once
+// an entry expires it returns the STALE value and refreshes in the background,
+// so the *next* request is the first to see fresh data — this awaits a fresh
+// result the moment an entry expires. Callers therefore never see stale stats
+// (which made a profile look "one lookup behind"), while bursts within the TTL
+// still share a single result and concurrent calls for the same key are deduped.
+function ttlMemo<A extends unknown[], T>(
+  fn: (...args: A) => Promise<T>,
+  keyOf: (...args: A) => string,
+  ttlMs: number,
+  maxEntries = 500
+): (...args: A) => Promise<T> {
+  const fresh = new Map<string, { value: T; expires: number }>();
+  const inflight = new Map<string, Promise<T>>();
+
+  return (...args: A): Promise<T> => {
+    const key = keyOf(...args);
+    const now = Date.now();
+
+    const hit = fresh.get(key);
+    if (hit && hit.expires > now) return Promise.resolve(hit.value);
+
+    const pending = inflight.get(key);
+    if (pending) return pending;
+
+    const p = (async () => {
+      try {
+        const value = await fn(...args);
+        fresh.set(key, { value, expires: Date.now() + ttlMs });
+        // Bound memory: drop expired entries first, then oldest by insertion.
+        if (fresh.size > maxEntries) {
+          const cutoff = Date.now();
+          for (const [k, v] of fresh) if (v.expires <= cutoff) fresh.delete(k);
+          while (fresh.size > maxEntries) {
+            const oldest = fresh.keys().next().value;
+            if (oldest === undefined) break;
+            fresh.delete(oldest);
+          }
+        }
+        return value;
+      } finally {
+        inflight.delete(key);
+      }
+    })();
+    inflight.set(key, p);
+    return p;
+  };
+}
+
 // ----------------------------------------------------------------------------
 // Types (the JSON contract surfaced by /api/v1)
 // ----------------------------------------------------------------------------
@@ -363,7 +414,7 @@ export const getAbilities = unstable_cache(
   { revalidate: 30 }
 );
 
-export const getPlayer = unstable_cache(
+export const getPlayer = ttlMemo(
   async (uuid: string): Promise<PlayerProfile | null> => {
     const key = uuidToBytes(uuid);
     const [row] = await query<PlayerRow>(
@@ -434,11 +485,11 @@ export const getPlayer = unstable_cache(
       })),
     };
   },
-  ["player"],
-  { revalidate: 30 }
+  (uuid) => `player:${uuid}`,
+  30_000
 );
 
-export const getPlayerByName = unstable_cache(
+export const getPlayerByName = ttlMemo(
   async (name: string): Promise<PlayerProfile | null> => {
     const [row] = await query<{ uuid: Buffer }>(
       `SELECT uuid FROM players WHERE name = ? LIMIT 1`,
@@ -447,6 +498,6 @@ export const getPlayerByName = unstable_cache(
     if (!row) return null;
     return getPlayer(uuidToString(row.uuid));
   },
-  ["player-by-name"],
-  { revalidate: 30 }
+  (name) => `player-by-name:${name.toLowerCase()}`,
+  30_000
 );
