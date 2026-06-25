@@ -17,6 +17,9 @@ import {
   Scale,
   Sparkles,
   Waves,
+  Hammer,
+  Gem,
+  Heart,
 } from "lucide-react";
 import Link from "next/link";
 
@@ -49,6 +52,92 @@ const NAV_LINKS = [
 ];
 
 const VERSIONS: VersionEntry[] = [
+  {
+    id: "amber-mace-event",
+    version: "Amber Mace Event",
+    subtitle: '"The Fragment Hunt"',
+    date: "June 2026",
+    summary:
+      "Eight Amber Fragments scatter across the dimensions, each empowering whoever carries it. Gather all eight to forge the Amber Mace mythic — then survive 20 minutes with your coordinates broadcast to the whole server.",
+    content: (
+      <>
+        <ChangeSection icon={Gem} title="🟠 Hunt the 8 Amber Fragments">
+          <ChangeItem title="Carry Them For Power" prs="">
+            <p className="text-gray-400 text-sm mb-2">
+              When the hunt begins, 8 Amber Fragments are scattered at random across the Overworld, the
+              Nether and the End. Each grants a passive simply by sitting in your inventory — they stack:
+            </p>
+            <li>⏱️ <strong>I</strong> — shard cooldowns reduced by 5%</li>
+            <li>🧪 <strong>II</strong> — potion effects last 5% longer</li>
+            <li>⚔️ <strong>III</strong> — damage output increased by 5%</li>
+            <li>❄️ <strong>IV</strong> — 5% chance to freeze a player you hit</li>
+            <li>💗 <strong>V</strong> — 5% chance to cheat death, healing to full</li>
+            <li>💨 <strong>VI</strong> — 5% chance to shove enemies away when below 4.5 hearts</li>
+            <li>🍎 <strong>VII</strong> — 5% chance to gain golden-apple effects when below 3 hearts</li>
+            <li>❤️ <strong>VIII</strong> — maximum health increased by 5%</li>
+          </ChangeItem>
+        </ChangeSection>
+
+        <ChangeSection icon={Hammer} title="🔨 Forge The Amber Mace">
+          <ChangeItem title="Craft It & Wear The Target" prs="">
+            <li>🛠️ Place a <strong>Heavy Core</strong> in the centre of a crafting table, ringed by the <strong>8 Amber Fragments</strong>, to forge the full <strong>Amber Mace</strong> mythic</li>
+            <li>📡 For <strong>20 minutes</strong> after forging, the mace holder&apos;s coordinates are <strong>broadcast to the whole server every 2 minutes</strong></li>
+            <li>✨ The holder gains an <strong>amber glow</strong>, visible through walls, for the duration</li>
+            <li>⚠️ Drop or lose the mace and everyone hears about it: <em>&ldquo;Mace has been dropped!&rdquo;</em> / <em>&ldquo;Amber Mace has been picked up by [Player]&rdquo;</em></li>
+          </ChangeItem>
+        </ChangeSection>
+      </>
+    ),
+  },
+  {
+    id: "dragon-shard",
+    version: "Dragon Shard",
+    subtitle: '"The Ritual"',
+    date: "June 2026",
+    summary:
+      "A new mythic earned by slaying the Ender Dragon and winning the ritual that follows — a 15-minute standoff at the End portal that ends in a blast of energy and a race to claim the shard.",
+    content: (
+      <>
+        <ChangeSection icon={Sparkles} title="🐉 The Dragon Shard Ritual">
+          <ChangeItem title="Earn It From The Dragon" prs="">
+            <li>🐲 Slay the Ender Dragon and a <strong>Dragon Shard</strong> rises, glowing pink, above the End exit portal</li>
+            <li>⏳ For <strong>15 minutes</strong> it&apos;s locked in place and can&apos;t be picked up — a pink boss bar counts the time down</li>
+            <li>💥 When the timer ends, a wave of black-and-pink energy <strong>blasts everyone back 10–15 blocks</strong> and the shard drops, free to claim</li>
+            <li>🏃 The <strong>first player to grab it</strong> becomes its owner</li>
+          </ChangeItem>
+          <ChangeItem title="The Dragon Shard Kit" prs="">
+            <li>💪 <strong>Passive</strong> — permanent Strength I and Speed I while owned</li>
+            <li>🗡️ <strong>Dragon Claw</strong> — a flurry of slashing claws dealing true damage and knockback</li>
+            <li>🌋 <strong>Dragon Leap</strong> — launch and crash down; a direct landing freezes and true-damages, a miss smashes the ground and slows everyone nearby</li>
+          </ChangeItem>
+        </ChangeSection>
+      </>
+    ),
+  },
+  {
+    id: "ability-fx",
+    version: "Ability Visuals",
+    subtitle: '"A Fresh Coat"',
+    date: "June 2026",
+    summary:
+      "Ocean and Health abilities got a visual overhaul — richer, more readable particle effects that show exactly what each ability is doing, with no change to how they play.",
+    content: (
+      <>
+        <ChangeSection icon={Waves} title="🌊 Ocean Effects">
+          <ChangeItem title="Tides & Vortexes" prs="">
+            <li>🌀 <strong>Riptide Zone</strong> — a tall, straight rain column wrapped in a glowing-blue double-helix marks the zone</li>
+            <li>💧 <strong>Hydro Beam</strong> — casting it whirls a water-and-sculk vortex around you from feet to head</li>
+          </ChangeItem>
+        </ChangeSection>
+        <ChangeSection icon={Heart} title="❤️ Health Effects">
+          <ChangeItem title="Menace & Warmth" prs="">
+            <li>🩸 <strong>Health Drain</strong> — a perfectly symmetrical red-and-black ring orbits you while the drain is active</li>
+            <li>💖 <strong>Overheal</strong> — a red halo, rising hearts, and orbiting green sparkles surround you</li>
+          </ChangeItem>
+        </ChangeSection>
+      </>
+    ),
+  },
   {
     id: "dragon-egg",
     version: "Dragon Egg",
