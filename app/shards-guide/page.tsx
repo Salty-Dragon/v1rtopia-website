@@ -93,6 +93,7 @@ const TOC_ITEMS: TocItem[] = [
   { id: "tier-2-abilities", label: "Ability 2", level: 1 },
   { id: "life-system", label: "Life System", level: 1 },
   { id: "trust-system", label: "Trust System", level: 1 },
+  { id: "relics", label: "Relics", level: 1 },
   { id: "commands", label: "Commands", level: 1 },
   { id: "quick-reference", label: "Quick Reference", level: 1 },
 ];
@@ -1154,6 +1155,48 @@ export default function ShardsGuidePage() {
                     <li>Remember it's one-directional: both of you must trust each other for mutual protection.</li>
                     <li>Trusted kills are inert, so you can't trade lives with a friend.</li>
                   </ul>
+                </div>
+              </div>
+            </section>
+
+            {/* ── Relics ── */}
+            <section id="relics" className="scroll-mt-24">
+              <SectionHeading icon={Sparkles}>
+                Relics
+              </SectionHeading>
+
+              <div className="glass border border-fuchsia-500/20 rounded-2xl p-6 space-y-6 text-gray-300 leading-relaxed">
+                <p>
+                  Relics are special items that empower you simply by being{" "}
+                  <strong className="text-white">carried in your inventory</strong> — no shard slot, no
+                  cooldown to manage. Keep one on you and its perks are always active.
+                </p>
+
+                <div className="p-5 rounded-xl bg-fuchsia-500/5 border border-fuchsia-500/20">
+                  <div className="flex items-center gap-3 mb-3">
+                    <span className="text-2xl">🐉</span>
+                    <h3 className="text-white font-semibold text-lg">Dragon Egg</h3>
+                  </div>
+                  <p className="text-gray-300 text-sm mb-4">
+                    Slain the Ender Dragon? Every kill now drops a{" "}
+                    <strong className="text-fuchsia-300">Dragon Egg</strong>. While it sits anywhere in your
+                    inventory — hotbar, storage, or offhand — it supercharges your shard play:
+                  </p>
+                  <div className="space-y-2">
+                    {[
+                      { label: "Faster shards", desc: "Every shard ability cooldown is started at half length, so your powers recharge twice as fast." },
+                      { label: "Longer buffs", desc: "Beneficial potion effects you gain last 20% longer (harmful effects are never extended)." },
+                    ].map(({ label, desc }) => (
+                      <div key={label} className="flex items-start gap-3 p-3 rounded-xl bg-white/5 border border-white/5">
+                        <span className="font-semibold text-sm w-32 shrink-0 text-fuchsia-300">{label}</span>
+                        <span className="text-gray-400 text-sm">{desc}</span>
+                      </div>
+                    ))}
+                  </div>
+                  <p className="text-gray-500 text-xs mt-3">
+                    The egg <strong className="text-gray-400">must be in your inventory</strong> for the perks to apply —
+                    drop it and the bonuses stop (cooldowns already running aren't affected either way).
+                  </p>
                 </div>
               </div>
             </section>

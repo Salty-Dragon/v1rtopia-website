@@ -50,6 +50,26 @@ const NAV_LINKS = [
 
 const VERSIONS: VersionEntry[] = [
   {
+    id: "dragon-egg",
+    version: "Dragon Egg",
+    subtitle: '"A Dragon\'s Hoard"',
+    date: "June 2026",
+    summary:
+      "Slaying the Ender Dragon now drops a Dragon Egg — a relic that empowers you while it's carried: every shard cooldown is halved and your beneficial potions last 20% longer.",
+    content: (
+      <>
+        <ChangeSection icon={Gift} title="🐉 The Dragon Egg Relic">
+          <ChangeItem title="Carry It, Reap The Rewards" prs="">
+            <li>🥚 <strong>Every Ender Dragon kill now drops a Dragon Egg</strong> (not just the first) — so the relic is repeatably obtainable</li>
+            <li>⏱️ <strong>Faster shards</strong> — while the egg is in your inventory, every shard ability cooldown starts at <strong>half length</strong>, so your powers recharge twice as fast</li>
+            <li>✨ <strong>Longer buffs</strong> — beneficial potion effects you gain last <strong>20% longer</strong> (harmful effects are never extended)</li>
+            <li>🎒 The egg <strong>must be in your inventory</strong> (hotbar, storage, or offhand) for the perks to apply</li>
+          </ChangeItem>
+        </ChangeSection>
+      </>
+    ),
+  },
+  {
     id: "ocean-release",
     version: "Ocean Shard",
     subtitle: '"Tides Rising"',
