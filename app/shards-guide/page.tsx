@@ -94,6 +94,7 @@ const TOC_ITEMS: TocItem[] = [
   { id: "life-system", label: "Life System", level: 1 },
   { id: "trust-system", label: "Trust System", level: 1 },
   { id: "relics", label: "Relics", level: 1 },
+  { id: "dragon-ritual", label: "Dragon Ritual", level: 1 },
   { id: "commands", label: "Commands", level: 1 },
   { id: "quick-reference", label: "Quick Reference", level: 1 },
 ];
@@ -1197,6 +1198,63 @@ export default function ShardsGuidePage() {
                     The egg <strong className="text-gray-400">must be in your inventory</strong> for the perks to apply —
                     drop it and the bonuses stop (cooldowns already running aren't affected either way).
                   </p>
+                </div>
+              </div>
+            </section>
+
+            {/* ── Dragon Ritual ── */}
+            <section id="dragon-ritual" className="scroll-mt-24">
+              <SectionHeading icon={Sparkles}>
+                The Dragon Shard Ritual
+              </SectionHeading>
+
+              <div className="glass border border-fuchsia-500/20 rounded-2xl p-6 space-y-6 text-gray-300 leading-relaxed">
+                <p>
+                  The <strong className="text-fuchsia-300">Dragon Shard</strong> — a mythic — isn&apos;t
+                  given out or found in a chest. It&apos;s earned by slaying the Ender Dragon and winning
+                  the ritual that follows.
+                </p>
+
+                <div className="space-y-3">
+                  {[
+                    { step: "1", title: "Slay the dragon", desc: "Kill the Ender Dragon. A Dragon Shard rises and hovers above the End exit portal, glowing pink — but you can't grab it yet." },
+                    { step: "2", title: "Wait out the timer", desc: "For 15 minutes the shard is locked in place and cannot be picked up. A pink boss bar counts the time down for everyone nearby." },
+                    { step: "3", title: "Brace for the wave", desc: "When the timer ends, a wave of black-and-pink energy erupts from the portal, blasting players back 10-15 blocks. Only then does the shard fall, now free to claim." },
+                    { step: "4", title: "Claim it first", desc: "The first player to pick up the dropped shard becomes its owner. It replaces your current shard — unless you're already carrying a mythic, in which case it stacks alongside." },
+                  ].map(({ step, title, desc }) => (
+                    <div key={step} className="flex items-start gap-4 p-4 rounded-xl bg-fuchsia-500/5 border border-fuchsia-500/20">
+                      <div className="w-8 h-8 shrink-0 rounded-lg bg-fuchsia-500/15 border border-fuchsia-400/40 flex items-center justify-center text-fuchsia-300 font-bold text-sm">
+                        {step}
+                      </div>
+                      <div>
+                        <h4 className="text-white font-semibold text-sm mb-1">{title}</h4>
+                        <p className="text-gray-400 text-sm">{desc}</p>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+
+                <div className="p-5 rounded-xl bg-fuchsia-500/5 border border-fuchsia-500/20">
+                  <div className="flex items-center gap-3 mb-3">
+                    <span className="text-2xl">🐉</span>
+                    <h3 className="text-white font-semibold text-lg">The Dragon Shard</h3>
+                  </div>
+                  <p className="text-gray-300 text-sm mb-4">
+                    Once it&apos;s yours, the Dragon Shard keeps you permanently empowered and arms you
+                    with two abilities:
+                  </p>
+                  <div className="space-y-2">
+                    {[
+                      { label: "Passive", desc: "Permanent Strength I and Speed I for as long as you own the shard." },
+                      { label: "Dragon Claw", desc: "Unleash a flurry of slashing claws in front of you, each dealing true damage and knocking enemies back." },
+                      { label: "Dragon Leap", desc: "Launch into the air and crash down — a direct landing freezes and true-damages your target; a miss still smashes the ground and slows everyone caught nearby." },
+                    ].map(({ label, desc }) => (
+                      <div key={label} className="flex items-start gap-3 p-3 rounded-xl bg-white/5 border border-white/5">
+                        <span className="font-semibold text-sm w-28 shrink-0 text-fuchsia-300">{label}</span>
+                        <span className="text-gray-400 text-sm">{desc}</span>
+                      </div>
+                    ))}
+                  </div>
                 </div>
               </div>
             </section>

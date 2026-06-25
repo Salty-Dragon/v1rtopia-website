@@ -10,6 +10,7 @@ import {
   RotateCcw,
   Moon,
   Swords,
+  Hammer,
   MessageCircle,
   ChevronRight,
   ArrowRight,
@@ -98,6 +99,17 @@ const PLUGINS: PluginCard[] = [
     badge: "Event",
     accent: "text-amber-400",
     border: "border-amber-500/30 hover:border-amber-400/60",
+  },
+  {
+    name: "The Amber Mace",
+    tagline: "Event · Fragment Hunt",
+    description:
+      "Eight Amber Fragments scatter across the dimensions, each empowering whoever carries it. Gather all eight to forge the Amber Mace mythic — then survive 20 minutes with your coordinates broadcast to the whole server.",
+    href: "/ambermace-guide",
+    icon: Hammer,
+    badge: "Event",
+    accent: "text-orange-400",
+    border: "border-orange-500/30 hover:border-orange-400/60",
   },
 ];
 
