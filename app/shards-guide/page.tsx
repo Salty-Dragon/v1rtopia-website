@@ -27,6 +27,7 @@ import {
   ArrowUp,
   Box,
   Waves,
+  Snowflake,
 } from "lucide-react";
 import Link from "next/link";
 
@@ -312,6 +313,31 @@ const SHARDS: ShardData[] = [
       range: "25 blocks",
       description:
         "Fire a pressurized water beam that stops at the first wall. Every untrusted player it passes through takes 4.5–5 hearts of true damage and is knocked back hard.",
+    },
+  },
+  {
+    id: "arctic",
+    name: "Arctic",
+    icon: Snowflake,
+    color: "text-cyan-300",
+    borderColor: "border-cyan-400/40",
+    bgColor: "bg-cyan-400/10",
+    description: "Frostbound control and movement.",
+    passive:
+      "Frost Walker — While you hold the shard, standing on snow or ice grants +15% movement speed. It fades the instant you step onto anything else.",
+    tier1: {
+      name: "Snow Storm",
+      cooldown: "120s",
+      range: "15×15 blocks",
+      description:
+        "Summon a swirling freeze vortex at your feet for 20 seconds. Untrusted players caught inside are gripped by frost (icy screen and heavy Slowness), take 8% more damage from every source, and are trapped — they cannot walk out of the vortex until it ends. It deals no direct damage of its own.",
+    },
+    tier2: {
+      name: "Frostbite",
+      cooldown: "180s",
+      range: "25 blocks",
+      description:
+        "Freeze the first player in your crosshair solid for 10 seconds — they can't move, jump, use abilities, or use items (only a golden apple can steady them). Trust-protected.",
     },
   },
 ];
@@ -1329,8 +1355,8 @@ export default function ShardsGuidePage() {
                   <tbody>
                     {[
                       { tier: "Short (60–75s)", abilities: "Echolocate (60s), Sonic Shriek (75s)" },
-                      { tier: "Medium (100–120s)", abilities: "Dash (100s/charge), Health Drain, Fire Wave, Vine Grapple, Shadowstep, Sky Dash, Driller (120s)" },
-                      { tier: "Long (180s)", abilities: "Thunderstorm, Overheal, Black Flame, Grove Prison, Shadow Domain, Boulder Throw" },
+                      { tier: "Medium (100–120s)", abilities: "Dash (100s/charge), Health Drain, Fire Wave, Vine Grapple, Shadowstep, Sky Dash, Driller, Riptide Zone, Snow Storm (120s)" },
+                      { tier: "Long (180s)", abilities: "Thunderstorm, Overheal, Black Flame, Grove Prison, Shadow Domain, Boulder Throw, Hydro Beam, Frostbite" },
                       { tier: "Meter-charged", abilities: "Sonic Shriek (Sound), Skyfall (Pressure, ~5 min), Black Flame (Rage)" },
                     ].map(({ tier, abilities }) => (
                       <tr key={tier} className="border-b border-white/5 hover:bg-white/5 transition-colors">
@@ -1365,6 +1391,8 @@ export default function ShardsGuidePage() {
                       "Echo - Echolocate: glow + darkness + close stun (A1)",
                       "Earth - Driller: bury untrusted players for 8s (A1)",
                       "Nature - Grove Prison: leaf ring + wind-charge lock (A2)",
+                      "Arctic - Snow Storm: trap + freeze + +8% damage vortex (A1)",
+                      "Arctic - Frostbite: full 10s freeze in place (A2)",
                     ],
                   },
                   {

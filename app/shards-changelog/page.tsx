@@ -20,6 +20,7 @@ import {
   Hammer,
   Gem,
   Heart,
+  Snowflake,
 } from "lucide-react";
 import Link from "next/link";
 
@@ -52,6 +53,32 @@ const NAV_LINKS = [
 ];
 
 const VERSIONS: VersionEntry[] = [
+  {
+    id: "arctic-shard",
+    version: "Arctic Shard",
+    subtitle: '"Cold Snap"',
+    date: "June 2026",
+    summary:
+      "A new shard built around freezing control: glide faster across snow and ice, trap your enemies in a freezing vortex they can't escape, and lock a single target solid where they stand.",
+    content: (
+      <>
+        <ChangeSection icon={Snowflake} title="❄️ The Arctic Shard">
+          <ChangeItem title="Frost Walker (Passive)" prs="">
+            <li>🥾 Standing on snow or ice grants <strong>+15% movement speed</strong> — it fades the instant you step onto anything else</li>
+          </ChangeItem>
+          <ChangeItem title="Snow Storm (Ability 1)" prs="">
+            <li>🌀 Summon a <strong>15×15 freeze vortex</strong> at your feet for 20 seconds</li>
+            <li>🧊 Untrusted players inside are gripped by frost (icy screen + heavy Slowness) and take <strong>8% more damage from every source</strong></li>
+            <li>⛔ Worst of all, they&apos;re <strong>trapped</strong> — they cannot walk out of the vortex until it ends</li>
+            <li>🛡️ Trust-protected, and it deals no direct damage of its own</li>
+          </ChangeItem>
+          <ChangeItem title="Frostbite (Ability 2)" prs="">
+            <li>🥶 Freeze the first player in your crosshair <strong>solid for 10 seconds</strong> — no moving, jumping, abilities, or items (only a golden apple can steady them)</li>
+          </ChangeItem>
+        </ChangeSection>
+      </>
+    ),
+  },
   {
     id: "amber-mace-event",
     version: "Amber Mace Event",
