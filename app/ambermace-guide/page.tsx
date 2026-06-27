@@ -58,6 +58,8 @@ const ADMIN_COMMANDS: CommandData[] = [
   { command: "/ambermace info", description: "Show whether a hunt is running and how long any carrier broadcast has left." },
   { command: "/ambermace give <player> <1-8>", description: "Hand a specific Amber Fragment to a player (testing/recovery)." },
   { command: "/ambermace reload", description: "Reload config.yml and messages.yml." },
+  { command: "/fragment place <1-8> [x y z] [world]", description: "Place a tracked fragment at a spot — defaults to your location; coordinates accept ~ relative notation; world accepts a name or overworld/nether/end." },
+  { command: "/fragment locate [1-8]", description: "Report the coordinates and dimension of every tracked fragment (pass a number to filter to one)." },
 ];
 
 // ========================================
